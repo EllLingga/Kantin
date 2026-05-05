@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KantinGo — Admin Panel</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --green:#21a72a; --green-a:rgba(33,167,42,.85); --green-soft:rgba(33,167,42,.1);
+      --red:#e74c3c; --bg:#f0f4f8;
+    }
+    * { box-sizing:border-box; }
+    body { background:var(--bg); font-family:'Plus Jakarta Sans',sans-serif; min-height:100vh; }
+    .t-main { color:var(--green-a)!important; }
+    .b-main { background:var(--green-a)!important; }
+
+    /* Topbar */
+    .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.07); padding:14px 20px;
+      display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+    .topbar .brand { font-size:1.15rem; font-weight:800; color:var(--green-a); display:flex; align-items:center; gap:8px; }
+    .admin-badge { background:var(--green-soft); color:var(--green); border:1px solid rgba(33,167,42,.2);
+      font-size:.65rem; font-weight:700; padding:3px 10px; border-radius:20px; letter-spacing:.5px; }
+
+    /* Tabs */
+    .tab-bar { display:flex; gap:4px; background:#fff; border-radius:40px; padding:4px;
+      box-shadow:0 2px 10px rgba(0,0,0,.07); }
+    .tab-bar button { border:none; background:transparent; border-radius:30px; padding:8px 20px;
+      font-weight:700; font-size:.82rem; color:#777; transition:.2s; font-family:inherit; cursor:pointer; }
+    .tab-bar button.active { background:var(--green-a); color:#fff; }
+
+    /* Form card */
+    .form-card { background:#fff; border-radius:20px; box-shadow:0 4px 20px rgba(0,0,0,.07); padding:24px; }
+    .form-label { font-weight:700; font-size:.8rem; color:#555; margin-bottom:4px; }
+    .form-control, .form-select { border-radius:12px; border:1.5px solid #e0e6ef; padding:10px 14px;
+      font-family:inherit; font-size:.88rem; transition:.2s; }
+    .form-control:focus, .form-select:focus { border-color:var(--green); box-shadow:0 0 0 3px var(--green-soft); }
+    .btn-add { background:var(--green-a); color:#fff; border:none; border-radius:14px; padding:12px;
+      font-weight:700; font-size:.9rem; width:100%; transition:.2s; font-family:inherit; cursor:pointer; }
+    .btn-add:active { transform:scale(.97); }
+    .btn-add:hover { background:var(--green); }
+    .btn-add:disabled { opacity:.5; cursor:not-allowed; }
+
+    /* Toggle switch for "Best" */
+    .toggle-wrap { display:flex; align-items:center; gap:10px; }
+    .toggle-switch { position:relative; width:46px; height:26px; }
+    .toggle-switch input { opacity:0; width:0; height:0; }
+    .toggle-slider { position:absolute; cursor:pointer; inset:0; background:#ccc; border-radius:26px; transition:.3s; }
+    .toggle-slider:before { position:absolute; content:""; height:20px; width:20px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.3s; }
+    input:checked + .toggle-slider { background:var(--green-a); }
+    input:checked + .toggle-slider:before { transform:translateX(20px); }
+
+    /* Image preview */
+    #img-preview { width:80px; height:80px; object-fit:cover; border-radius:12px;
+      border:2px dashed #d0d8e4; display:none; }
+    #img-preview.show { display:block; }
+
+    /* Menu list */
+    .menu-item-card { background:#fff; border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,.06);
+      padding:14px; display:flex; gap:12px; align-items:center; margin-bottom:10px; transition:.2s; }
+    .menu-item-card:hover { box-shadow:0 4px 20px rgba(0,0,0,.1); }
+    .menu-item-card img { width:60px; height:60px; object-fit:cover; border-radius:10px; flex-shrink:0; }
+    .item-info { flex-grow:1; min-width:0; }
+    .item-info h6 { font-size:.85rem; font-weight:700; margin:0 0 2px; }
+    .item-info small { font-size:.72rem; color:#888; }
+    .item-price { font-size:.82rem; font-weight:700; color:var(--green-a); }
+    .btn-del { background:#fee2e2; border:none; border-radius:10px; width:36px; height:36px;
+      display:flex; align-items:center; justify-content:center; color:var(--red); cursor:pointer;
+      transition:.2s; flex-shrink:0; font-size:1rem; }
+    .btn-del:hover { background:var(--red); color:#fff; }
+
+    /* Empty state */
+    .empty-state { text-align:center; color:#aaa; padding:40px 20px; }
+    .empty-state i { font-size:3rem; opacity:.2; display:block; margin-bottom:10px; }
+
+    /* Spinner */
+    .spin { animation:spin .8s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    /* Badge best */
+    .badge-best { background:#fee2e2; color:var(--red); font-size:.6rem; font-weight:700;
+      padding:2px 8px; border-radius:20px; }
+
+    /* Login overlay */
+    #login-screen { position:fixed; inset:0; background:var(--bg); z-index:999;
+      display:flex; align-items:center; justify-content:center; }
+    .login-box { background:#fff; border-radius:24px; padding:36px; width:100%; max-width:380px;
+      box-shadow:0 10px 40px rgba(0,0,0,.12); text-align:center; }
+    .login-box h2 { color:var(--green-a); font-weight:800; margin-bottom:4px; }
+
+    @media(max-width:576px){
+      .topbar { padding:12px 16px; }
+      .form-card { padding:18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div style="font-size:3rem; margin-bottom:8px;">🔐</div>
+    <h2>KantinGo</h2>
+    <p class="text-muted mb-4" style="font-size:.85rem">Admin Panel — Masuk untuk melanjutkan</p>
+    <input type="password" id="pass-input" class="form-control mb-3" placeholder="Password Admin" onkeyup="if(event.key==='Enter')doLogin()">
+    <button class="btn-add" onclick="doLogin()"><i class="bi bi-unlock me-2"></i>Masuk</button>
+    <p class="text-muted mt-3" style="font-size:.72rem">Default: <code>admin123</code> (ubah di kode)</p>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand"><i class="bi bi-shop-window"></i> KantinGo <span class="admin-badge ms-1">ADMIN</span></div>
+  <div class="d-flex align-items-center gap-2">
+    <div id="sync-indicator" class="text-muted" style="font-size:.75rem"></div>
+    <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="logout()"><i class="bi bi-box-arrow-right"></i></button>
+  </div>
+</div>
+
+<div class="container py-4" style="max-width:680px">
+
+  <!-- Tab -->
+  <div class="d-flex justify-content-center mb-4">
+    <div class="tab-bar">
+      <button class="active" id="tab-makanan" onclick="switchTab('makanan')"><i class="bi bi-egg-fried me-1"></i>Makanan</button>
+      <button id="tab-minuman" onclick="switchTab('minuman')"><i class="bi bi-cup-straw me-1"></i>Minuman</button>
+    </div>
+  </div>
+
+  <!-- Form Tambah -->
+  <div class="form-card mb-4">
+    <h6 class="fw-bold mb-3 t-main"><i class="bi bi-plus-circle me-2"></i>Tambah <span id="form-type-label">Makanan</span></h6>
+
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label">Nama Menu *</label>
+        <input type="text" id="f-nama" class="form-control" placeholder="Contoh: Nasi Goreng Spesial">
+      </div>
+      <div class="col-6">
+        <label class="form-label">Harga (Rp) *</label>
+        <input type="number" id="f-harga" class="form-control" placeholder="8000" min="0">
+      </div>
+      <div class="col-6">
+        <label class="form-label">Kategori</label>
+        <input type="text" id="f-kategori" class="form-control" placeholder="Nasi / Mie / Jus...">
+      </div>
+      <div class="col-12">
+        <label class="form-label">Deskripsi</label>
+        <input type="text" id="f-desc" class="form-control" placeholder="Singkat, misal: Pedas + telur + sayur">
+      </div>
+      <div class="col-12">
+        <label class="form-label">URL Gambar</label>
+        <div class="d-flex gap-2 align-items-start">
+          <div class="flex-grow-1">
+            <input type="text" id="f-img" class="form-control" placeholder="https://... atau kosongkan"
+              oninput="previewImg(this.value)">
+            <small class="text-muted" style="font-size:.7rem">Pakai URL dari Unsplash, imgbb, atau lainnya</small>
+          </div>
+          <img id="img-preview" src="" alt="preview" onerror="this.classList.remove('show')">
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="toggle-wrap">
+          <label class="toggle-switch">
+            <input type="checkbox" id="f-best">
+            <span class="toggle-slider"></span>
+          </label>
+          <span style="font-size:.85rem; font-weight:600;">Tandai sebagai <span style="color:var(--red)">🔥 Best Seller</span></span>
+        </div>
+      </div>
+      <div class="col-12">
+        <button class="btn-add" id="btn-submit" onclick="tambahMenu()">
+          <i class="bi bi-plus-lg me-2"></i>Tambah ke Menu
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daftar Menu -->
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h6 class="fw-bold m-0 t-main"><i class="bi bi-list-ul me-2"></i>Daftar <span id="list-type-label">Makanan</span></h6>
+    <span id="item-count" class="text-muted" style="font-size:.78rem"></span>
+  </div>
+  <div id="menu-list"></div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// =============================================
+// CONFIG — ganti dengan milikmu
+// =============================================
+const JSONBIN_BIN_ID  = "GANTI_BIN_ID_DISINI";
+const JSONBIN_API_KEY = "GANTI_API_KEY_DISINI";
+const ADMIN_PASSWORD  = "admin123"; // Ganti password!
+// =============================================
+
+const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+const $ = id => document.getElementById(id);
+
+let menuData = { makanan: [], minuman: [] };
+let activeTab = "makanan";
+let isSaving = false;
+
+// ---- LOGIN ----
+const doLogin = () => {
+  if($("pass-input").value === ADMIN_PASSWORD) {
+    $("login-screen").style.display = "none";
+    localStorage.setItem("kantingo_admin", "1");
+    loadMenu();
+  } else {
+    $("pass-input").style.borderColor = "#e74c3c";
+    $("pass-input").placeholder = "Password salah!";
+    setTimeout(()=>{ $("pass-input").style.borderColor=""; $("pass-input").placeholder="Password Admin"; }, 1500);
+  }
+};
+
+const logout = () => {
+  localStorage.removeItem("kantingo_admin");
+  location.reload();
+};
+
+// Cek session
+if(localStorage.getItem("kantingo_admin")==="1") {
+  $("login-screen").style.display = "none";
+  loadMenu();
+}
+
+// ---- JSONBIN FETCH ----
+async function loadMenu() {
+  setSyncStatus("⏳ Memuat...");
+  try {
+    const res = await fetch(`${JSONBIN_URL}/latest`, {
+      headers: { "X-Master-Key": JSONBIN_API_KEY }
+    });
+    if (!res.ok) throw new Error(res.status);
+    const json = await res.json();
+    menuData = json.record || { makanan: [], minuman: [] };
+    if (!menuData.makanan) menuData.makanan = [];
+    if (!menuData.minuman) menuData.minuman = [];
+    setSyncStatus("✅ Data tersinkron");
+  } catch(e) {
+    console.error(e);
+    setSyncStatus("⚠️ Gagal load (cek BIN_ID)");
+  }
+  renderList();
+}
+
+async function saveMenu() {
+  if (isSaving) return;
+  isSaving = true;
+  setSyncStatus("💾 Menyimpan...");
+  try {
+    const res = await fetch(JSONBIN_URL, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Master-Key": JSONBIN_API_KEY
+      },
+      body: JSON.stringify(menuData)
+    });
+    if (!res.ok) throw new Error(res.status);
+    setSyncStatus("✅ Tersimpan ke JSONBin");
+  } catch(e) {
+    console.error(e);
+    setSyncStatus("❌ Gagal simpan!");
+    Swal.fire({icon:"error",title:"Gagal!",text:"Cek BIN_ID dan API_KEY JSONBin kamu.",confirmButtonColor:"#21a72a"});
+  }
+  isSaving = false;
+}
+
+const setSyncStatus = t => { $("sync-indicator").textContent = t; };
+
+// ---- TAB ----
+const switchTab = t => {
+  activeTab = t;
+  $("tab-makanan").classList.toggle("active", t==="makanan");
+  $("tab-minuman").classList.toggle("active", t==="minuman");
+  $("form-type-label").textContent = t==="makanan" ? "Makanan" : "Minuman";
+  $("list-type-label").textContent = t==="makanan" ? "Makanan" : "Minuman";
+  renderList();
+};
+
+// ---- FORM ----
+const previewImg = url => {
+  const el = $("img-preview");
+  if(url.startsWith("http")) { el.src=url; el.classList.add("show"); }
+  else el.classList.remove("show");
+};
+
+const tambahMenu = async () => {
+  const nama = $("f-nama").value.trim();
+  const harga = parseInt($("f-harga").value);
+  if (!nama) { highlight("f-nama","Nama wajib diisi!"); return; }
+  if (!harga || harga<=0) { highlight("f-harga","Harga tidak valid!"); return; }
+
+  const newItem = {
+    id: Date.now(),
+    nama,
+    harga,
+    desc: $("f-desc").value.trim() || "-",
+    img: $("f-img").value.trim() || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400",
+    kategori: $("f-kategori").value.trim() || "Umum",
+    best: $("f-best").checked
+  };
+
+  menuData[activeTab].push(newItem);
+  resetForm();
+  renderList();
+  await saveMenu();
+
+  Swal.mixin({toast:true,position:"top",showConfirmButton:false,timer:1800})
+    .fire({icon:"success",title:`${newItem.nama} berhasil ditambah!`});
+};
+
+const hapusMenu = async (type, id) => {
+  const item = menuData[type].find(i=>i.id===id);
+  const result = await Swal.fire({
+    title:`Hapus "${item?.nama}"?`,
+    text:"Menu ini akan dihapus permanen.",
+    icon:"warning",
+    showCancelButton:true,
+    confirmButtonColor:"#e74c3c",
+    cancelButtonColor:"#aaa",
+    confirmButtonText:"Ya, hapus!",
+    cancelButtonText:"Batal"
+  });
+  if (!result.isConfirmed) return;
+  menuData[type] = menuData[type].filter(i=>i.id!==id);
+  renderList();
+  await saveMenu();
+};
+
+const toggleBest = async (type, id) => {
+  const item = menuData[type].find(i=>i.id===id);
+  if(item) item.best = !item.best;
+  renderList();
+  await saveMenu();
+};
+
+// ---- RENDER ----
+const renderList = () => {
+  const items = menuData[activeTab] || [];
+  $("item-count").textContent = `${items.length} item`;
+
+  if (!items.length) {
+    $("menu-list").innerHTML = `<div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada menu.<br>Tambahkan lewat form di atas.</p></div>`;
+    return;
+  }
+
+  $("menu-list").innerHTML = [...items].reverse().map(i => `
+    <div class="menu-item-card">
+      <img src="${i.img||''}" alt="${i.nama}"
+        onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200'">
+      <div class="item-info">
+        <div class="d-flex align-items-center gap-1 flex-wrap mb-1">
+          <h6>${i.nama}</h6>
+          ${i.best?`<span class="badge-best">🔥 Best</span>`:''}
+        </div>
+        <small>${i.desc} · <em>${i.kategori}</em></small><br>
+        <span class="item-price">Rp ${Number(i.harga).toLocaleString("id-ID")}</span>
+      </div>
+      <div class="d-flex flex-column gap-2">
+        <button class="btn-del" title="${i.best?'Hapus Best':'Jadikan Best'}"
+          onclick="toggleBest('${activeTab}',${i.id})"
+          style="background:${i.best?'#fef3c7':'#f3f4f6'};color:${i.best?'#d97706':'#aaa'}">
+          <i class="bi bi-fire"></i>
+        </button>
+        <button class="btn-del" title="Hapus" onclick="hapusMenu('${activeTab}',${i.id})">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+    </div>`).join('');
+};
+
+const resetForm = () => {
+  ["f-nama","f-harga","f-desc","f-img","f-kategori"].forEach(id=>$(id).value="");
+  $("f-best").checked = false;
+  $("img-preview").classList.remove("show");
+};
+
+const highlight = (id, msg) => {
+  const el = $(id);
+  el.style.borderColor="#e74c3c";
+  el.placeholder = msg;
+  el.focus();
+  setTimeout(()=>{ el.style.borderColor=""; }, 2000);
+};
+</script>
+</body>
+</html>
