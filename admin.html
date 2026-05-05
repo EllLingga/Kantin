@@ -114,7 +114,6 @@
     <p class="text-muted mb-4" style="font-size:.85rem">Admin Panel — Masuk untuk melanjutkan</p>
     <input type="password" id="pass-input" class="form-control mb-3" placeholder="Password Admin" onkeyup="if(event.key==='Enter')doLogin()">
     <button class="btn-add" onclick="doLogin()"><i class="bi bi-unlock me-2"></i>Masuk</button>
-    <p class="text-muted mt-3" style="font-size:.72rem">Default: <code>admin123</code> (ubah di kode)</p>
   </div>
 </div>
 
@@ -242,11 +241,14 @@ async function loadMenu() {
   setSyncStatus("⏳ Memuat...");
   try {
     const res = await fetch(`${JSONBIN_URL}/latest`, {
-      headers: { "X-Master-Key": JSONBIN_API_KEY }
+      headers: {
+        "X-Master-Key": JSONBIN_API_KEY,
+        "X-Bin-Meta": "false"
+      }
     });
     if (!res.ok) throw new Error(res.status);
     const json = await res.json();
-    menuData = json.record || { makanan: [], minuman: [] };
+    menuData = json.record || json || { makanan: [], minuman: [] };
     if (!menuData.makanan) menuData.makanan = [];
     if (!menuData.minuman) menuData.minuman = [];
     setSyncStatus("✅ Data tersinkron");
