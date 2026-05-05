@@ -52,10 +52,18 @@
     input:checked + .toggle-slider { background:var(--green-a); }
     input:checked + .toggle-slider:before { transform:translateX(20px); }
 
-    /* Image preview */
-    #img-preview { width:80px; height:80px; object-fit:cover; border-radius:12px;
-      border:2px dashed #d0d8e4; display:none; }
-    #img-preview.show { display:block; }
+    /* Upload area */
+    .upload-area { border:2px dashed #d0d8e4; border-radius:14px; padding:20px;
+      text-align:center; cursor:pointer; transition:.2s; background:#fafbfc; position:relative; }
+    .upload-area:hover { border-color:var(--green); background:var(--green-soft); }
+    .upload-area.dragging { border-color:var(--green); background:var(--green-soft); }
+    .upload-area input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+    .upload-area .upload-icon { font-size:2rem; color:#ccc; display:block; margin-bottom:6px; }
+    .upload-area p { margin:0; font-size:.8rem; color:#aaa; }
+    .img-preview-box { width:100%; height:140px; object-fit:cover; border-radius:12px;
+      border:2px solid #e0e6ef; display:none; margin-top:10px; }
+    .img-preview-box.show { display:block; }
+    .upload-status { font-size:.75rem; margin-top:6px; font-weight:600; }
 
     /* Menu list */
     .menu-item-card { background:#fff; border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,.06);
@@ -106,6 +114,7 @@
     <p class="text-muted mb-4" style="font-size:.85rem">Admin Panel — Masuk untuk melanjutkan</p>
     <input type="password" id="pass-input" class="form-control mb-3" placeholder="Password Admin" onkeyup="if(event.key==='Enter')doLogin()">
     <button class="btn-add" onclick="doLogin()"><i class="bi bi-unlock me-2"></i>Masuk</button>
+    <p class="text-muted mt-3" style="font-size:.72rem">Default: <code>admin123</code> (ubah di kode)</p>
   </div>
 </div>
 
@@ -150,15 +159,15 @@
         <input type="text" id="f-desc" class="form-control" placeholder="Singkat, misal: Pedas + telur + sayur">
       </div>
       <div class="col-12">
-        <label class="form-label">URL Gambar</label>
-        <div class="d-flex gap-2 align-items-start">
-          <div class="flex-grow-1">
-            <input type="text" id="f-img" class="form-control" placeholder="https://... atau kosongkan"
-              oninput="previewImg(this.value)">
-            <small class="text-muted" style="font-size:.7rem">Pakai URL dari Unsplash, imgbb, atau lainnya</small>
-          </div>
-          <img id="img-preview" src="" alt="preview" onerror="this.classList.remove('show')">
+        <label class="form-label">Foto Menu</label>
+        <div class="upload-area" id="upload-area">
+          <input type="file" id="f-img-file" accept="image/*" onchange="handleUpload(this)">
+          <i class="bi bi-cloud-arrow-up upload-icon"></i>
+          <p>Tap untuk pilih foto<br><span style="font-size:.7rem;color:#ccc">JPG, PNG, WEBP — maks 5MB</span></p>
         </div>
+        <img id="img-preview-box" class="img-preview-box" src="" alt="preview">
+        <div id="upload-status" class="upload-status text-muted"></div>
+        <input type="hidden" id="f-img">
       </div>
       <div class="col-12">
         <div class="toggle-wrap">
@@ -191,6 +200,7 @@
 // =============================================
 // CONFIG — ganti dengan milikmu
 // =============================================
+const IMGBB_API_KEY   = "181c37c295a5af7fbc3640042edea412";
 const JSONBIN_BIN_ID  = "69f9485836566621a82699c4";
 const JSONBIN_API_KEY = "$2a$10$yeNFeh35hEUuTVcEY4znkuLrYqTqLCZMpioDuaGPnZD0pGJJgAgLK";
 const ADMIN_PASSWORD  = "ellao"; // Ganti password!
@@ -282,11 +292,65 @@ const switchTab = t => {
   renderList();
 };
 
-// ---- FORM ----
-const previewImg = url => {
-  const el = $("img-preview");
-  if(url.startsWith("http")) { el.src=url; el.classList.add("show"); }
-  else el.classList.remove("show");
+// ---- UPLOAD GAMBAR ke ImgBB ----
+let uploadedImgUrl = "";
+
+const handleUpload = async (input) => {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    setUploadStatus("❌ Ukuran file max 5MB!", "text-danger");
+    return;
+  }
+
+  // Preview lokal dulu
+  const reader = new FileReader();
+  reader.onload = e => {
+    const prev = $("img-preview-box");
+    prev.src = e.target.result;
+    prev.classList.add("show");
+  };
+  reader.readAsDataURL(file);
+
+  setUploadStatus("⏳ Mengupload gambar...", "text-warning");
+  $("btn-submit").disabled = true;
+
+  try {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+      method: "POST",
+      body: formData
+    });
+    const json = await res.json();
+
+    if (json.success) {
+      uploadedImgUrl = json.data.url;
+      $("f-img").value = uploadedImgUrl;
+      setUploadStatus("✅ Gambar berhasil diupload!", "text-success");
+    } else {
+      throw new Error("Upload gagal");
+    }
+  } catch(e) {
+    // Fallback: simpan sebagai base64 jika ImgBB gagal/belum disetup
+    console.warn("ImgBB gagal, pakai base64:", e);
+    const reader2 = new FileReader();
+    reader2.onload = ev => {
+      uploadedImgUrl = ev.target.result;
+      $("f-img").value = uploadedImgUrl;
+      setUploadStatus("✅ Gambar siap (mode lokal)", "text-success");
+    };
+    reader2.readAsDataURL(file);
+  } finally {
+    $("btn-submit").disabled = false;
+  }
+};
+
+const setUploadStatus = (msg, cls) => {
+  const el = $("upload-status");
+  el.textContent = msg;
+  el.className = `upload-status ${cls}`;
 };
 
 const tambahMenu = async () => {
@@ -300,7 +364,7 @@ const tambahMenu = async () => {
     nama,
     harga,
     desc: $("f-desc").value.trim() || "-",
-    img: $("f-img").value.trim() || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400",
+    img: uploadedImgUrl || $("f-img").value.trim() || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400",
     kategori: $("f-kategori").value.trim() || "Umum",
     best: $("f-best").checked
   };
@@ -377,7 +441,12 @@ const renderList = () => {
 const resetForm = () => {
   ["f-nama","f-harga","f-desc","f-img","f-kategori"].forEach(id=>$(id).value="");
   $("f-best").checked = false;
-  $("img-preview").classList.remove("show");
+  $("f-img-file").value = "";
+  uploadedImgUrl = "";
+  $("img-preview-box").classList.remove("show");
+  $("img-preview-box").src = "";
+  $("upload-status").textContent = "";
+  $("upload-area").querySelector("p").innerHTML = `Tap untuk pilih foto<br><span style="font-size:.7rem;color:#ccc">JPG, PNG, WEBP — maks 5MB</span>`;
 };
 
 const highlight = (id, msg) => {
