@@ -225,7 +225,15 @@ if (localStorage.getItem("kg_admin") === "1") {
   init();
 }
 
-function init() { loadMenu(); }
+function init() {
+  loadMenu();
+  // Reload data otomatis saat tab aktif kembali (fix: daftar hilang saat pindah tab)
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      loadMenu();
+    }
+  });
+}
 
 // ---- JSONBIN ----
 async function loadMenu() {
@@ -329,11 +337,18 @@ const handleUpload = async input => {
     $("f-img").value = uploadedImgUrl;
     setUploadStatus("✅ Gambar berhasil diupload!", "text-success");
   } catch (e) {
-    console.warn("ImgBB gagal, pakai base64:", e);
-    // Fallback: simpan base64 langsung — ini sudah di-await di atas
-    uploadedImgUrl = base64;
-    $("f-img").value = base64;
-    setUploadStatus("✅ Gambar siap (mode lokal)", "text-success");
+    console.warn("ImgBB gagal:", e);
+    // Fallback base64 hanya jika file kecil (< 100KB) — file besar akan gagalkan JSONBin
+    if (file.size < 100 * 1024) {
+      uploadedImgUrl = base64;
+      $("f-img").value = base64;
+      setUploadStatus("✅ Gambar siap (mode lokal)", "text-success");
+    } else {
+      uploadedImgUrl = "";
+      $("f-img").value = "";
+      $("img-preview-box").classList.remove("show");
+      setUploadStatus("❌ Upload ke server gagal. Coba lagi atau pakai gambar lebih kecil.", "text-danger");
+    }
   } finally {
     $("btn-submit").disabled = false;
   }
