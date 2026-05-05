@@ -1,384 +1,450 @@
 <!doctype html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KantinGo - Info Katalog</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
-      rel="stylesheet"
-    />
-    <style>
-      body {
-        background-color: #f4f6f9;
-      }
-      .hero {
-        height: 250px;
-        background-size: cover;
-        background-position: center;
-        position: relative;
-      }
-      .hero-overlay {
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          to bottom,
-          rgba(0, 0, 0, 0.3),
-          rgba(0, 0, 0, 0.7)
-        );
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        color: white;
-        text-align: center;
-      }
-      @media (min-width: 768px) {
-        .hero {
-          border-radius: 1rem;
-          overflow: hidden;
-          margin-top: 1.5rem;
-        }
-      }
-      .menu-card {
-        transition: all 0.3s ease;
-      }
-      @media (min-width: 768px) {
-        .menu-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
-        }
-      }
-      .bottom-nav {
-        z-index: 1030;
-      }
-      .nav-item-btn {
-        transition: 0.3s;
-        cursor: pointer;
-        color: #6c757d;
-      }
-      .nav-item-btn.active {
-        color: #21a72abb !important;
-        font-weight: bold;
-        transform: translateY(-3px);
-      }
-      .top-nav-link {
-        cursor: pointer;
-        font-weight: 500;
-        transition: 0.2s;
-      }
-      .top-nav-link.active {
-        color: #21a72abb !important;
-        font-weight: 700;
-        border-bottom: 2px solid #21a72abb;
-      }
-    </style>
-  </head>
-  <body>
-    <nav
-      class="navbar navbar-expand-md bg-white shadow-sm sticky-top d-none d-md-flex py-3"
-    >
-      <div class="container">
-        <a class="navbar-brand fw-bold fs-4" style="color: #21a72abb" href="#"
-          ><i class="bi bi-shop"></i> KantinGo</a
-        >
-        <ul class="navbar-nav ms-auto gap-3">
-          <li class="nav-item">
-            <a
-              class="nav-link top-nav-link active"
-              data-target="home"
-              onclick="switchPage('home')"
-              ><i class="bi bi-house-door"></i> Beranda</a
-            >
-          </li>
-          <li class="nav-item">
-            <a
-              class="nav-link top-nav-link"
-              data-target="makanan"
-              onclick="switchPage('makanan')"
-              ><i class="bi bi-egg-fried"></i> Makanan</a
-            >
-          </li>
-          <li class="nav-item">
-            <a
-              class="nav-link top-nav-link"
-              data-target="minuman"
-              onclick="switchPage('minuman')"
-              ><i class="bi bi-cup-straw"></i> Minuman</a
-            >
-          </li>
-        </ul>
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KantinGo - Katalog & Pesanan</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root { --green:#21a72a; --green-a:rgba(33,167,42,.85); --green-soft:rgba(33,167,42,.1); --green-mid:rgba(33,167,42,.2); }
+    * { box-sizing:border-box; }
+    body { background:#f0f4f8; font-family:'Plus Jakarta Sans',sans-serif; }
+    .t-main  { color:var(--green-a) !important; }
+    .b-main  { background-color:var(--green-a) !important; }
+
+    /* Navbar */
+    .top-navbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.07); }
+    .top-nav-link { cursor:pointer; font-weight:600; font-size:.88rem; transition:.2s; color:#555; padding:6px 2px; }
+    .top-nav-link.active { color:var(--green-a) !important; border-bottom:2.5px solid var(--green-a); }
+
+    /* Hero */
+    .hero { height:240px; background:center/cover; position:relative; }
+    .hero-overlay { position:absolute; inset:0; background:linear-gradient(to bottom,rgba(0,0,0,.2),rgba(0,0,0,.72)); display:flex; flex-direction:column; justify-content:center; align-items:center; color:#fff; text-align:center; }
+    @media(min-width:768px){ .hero { border-radius:1rem; overflow:hidden; margin-top:1.5rem; height:280px; } }
+
+    /* Cards */
+    .menu-card { transition:.25s ease; border:none; border-radius:14px; }
+    @media(min-width:768px){ .menu-card:hover { transform:translateY(-5px); box-shadow:0 12px 24px rgba(0,0,0,.1) !important; } }
+
+    /* Bottom Nav */
+    .bot-nav { background:#fff; border-top:1px solid #e8edf2; }
+    .nav-item-btn { transition:.25s; cursor:pointer; color:#9aa5b4; font-size:10px; }
+    .nav-item-btn.active { color:var(--green-a) !important; font-weight:700; transform:translateY(-2px); }
+
+    /* FAB Cart */
+    #fab-cart { transition:transform .2s, box-shadow .2s; }
+    #fab-cart:active { transform:scale(.88) !important; }
+    #fab-cart.has-item { animation:fab-pulse 1.6s infinite; }
+    @keyframes fab-pulse {
+      0%,100% { box-shadow:0 4px 18px rgba(33,167,42,.4); }
+      50%      { box-shadow:0 4px 30px rgba(33,167,42,.15), 0 0 0 10px rgba(33,167,42,.08); }
+    }
+
+    /* Sub tabs */
+    .sub-tab { display:inline-flex; gap:5px; background:#fff; border-radius:40px; padding:4px; box-shadow:0 2px 10px rgba(0,0,0,.07); }
+    .sub-tab button { border:none; background:transparent; border-radius:30px; padding:5px 14px; font-weight:600; font-size:.8rem; color:#777; transition:.2s; font-family:inherit; cursor:pointer; }
+    .sub-tab button.active { background:var(--green-a); color:#fff; }
+
+    /* Search */
+    .search-wrap { position:relative; }
+    .search-wrap input { border-radius:30px; border:none; background:#fff; padding:10px 18px 10px 42px; font-size:.875rem; box-shadow:0 2px 10px rgba(0,0,0,.07); width:100%; outline:none; font-family:inherit; }
+    .search-wrap .bi-search { position:absolute; left:15px; top:50%; transform:translateY(-50%); color:#aaa; }
+
+    /* Misc */
+    .swal-pay-btn { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; margin-bottom:10px; font-weight:bold; }
+    .section-label { font-size:.7rem; font-weight:700; color:#9aa5b4; text-transform:uppercase; letter-spacing:1px; }
+    .page { animation:fadeIn .25s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+    /* Skeleton loader */
+    .skeleton { background:linear-gradient(90deg,#e0e0e0 25%,#f0f0f0 50%,#e0e0e0 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:10px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .sk-card { height:100px; margin-bottom:12px; }
+  </style>
+</head>
+<body>
+
+<!-- DESKTOP NAVBAR -->
+<nav class="top-navbar navbar navbar-expand-md sticky-top d-none d-md-flex py-3">
+  <div class="container">
+    <a class="navbar-brand fw-bold fs-4 t-main" href="#"><i class="bi bi-shop-window"></i> KantinGo</a>
+    <ul class="navbar-nav ms-auto gap-3 align-items-center">
+      <li class="nav-item"><a class="nav-link top-nav-link active" data-target="home" onclick="go('home')">Beranda</a></li>
+      <li class="nav-item"><a class="nav-link top-nav-link" data-target="makanan" onclick="go('makanan')">Makanan</a></li>
+      <li class="nav-item"><a class="nav-link top-nav-link" data-target="minuman" onclick="go('minuman')">Minuman</a></li>
+      <li class="nav-item ms-2">
+        <button class="btn border-0 position-relative" data-bs-toggle="modal" data-bs-target="#cartModal">
+          <i class="bi bi-cart3 fs-4 t-main"></i>
+          <span id="c-desk" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">0</span>
+        </button>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<div class="container pb-5 mb-5 mt-0 mt-md-2">
+
+  <!-- HOME -->
+  <div id="p-home" class="page">
+    <div class="hero mb-4" style="background-image:url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200')">
+      <div class="hero-overlay">
+        <h1 class="fw-bold m-0 display-5">KantinGo</h1>
+        <p class="m-0 mt-2" style="letter-spacing:2px;font-size:13px;text-transform:uppercase;opacity:.85">Katalog & Pesanan Digital</p>
       </div>
-    </nav>
+    </div>
 
-    <div class="container main-container pb-5 mb-5">
-      <div id="pages">
-        <div id="page-home" class="page-content">
-          <div
-            class="hero mb-4"
-            style="background-image: url(&quot;Home.jpg&quot;)"
-          >
-            <div class="hero-overlay">
-              <h1 class="fw-bold m-0 display-5">KantinGo</h1>
-              <p
-                class="text-uppercase m-0 mt-2 text-light"
-                style="letter-spacing: 2px; font-size: 14px"
-              >
-                Katalog Info Menu
-              </p>
+    <div class="row justify-content-center g-4 mb-4">
+      <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0 rounded-4 p-2 text-center">
+          <div class="card-body">
+            <h5 class="fw-bold mb-3 t-main">Informasi Kantin</h5>
+            <div class="d-flex justify-content-center gap-4 text-muted small">
+              <div><i class="bi bi-geo-alt fs-4 d-block mb-1 text-danger"></i>Lt. Dasar</div>
+              <div><i class="bi bi-clock fs-4 d-block mb-1 text-warning"></i>07:00 - 17:00<span id="k-status" class="badge rounded-pill mt-1 d-block shadow-sm"></span></div>
+              <div><i class="bi bi-info-circle fs-4 d-block mb-1 text-info"></i>Info Harga</div>
             </div>
           </div>
-
-          <div class="row justify-content-center g-4">
-            <div class="col-md-8 col-lg-6">
-              <div class="card shadow-sm border-0 rounded-4 p-2">
-                <div class="card-body text-center">
-                  <h5 class="card-title fw-bold mb-3" style="color: #21a72abb">
-                    Informasi Kantin
-                  </h5>
-                  <div
-                    class="d-flex justify-content-center gap-4 text-muted small mb-0"
-                  >
-                    <div>
-                      <i
-                        class="bi bi-geo-alt fs-4 d-block mb-1 text-danger"
-                      ></i>
-                      Lt. Dasar
-                    </div>
-                    <div>
-                      <i class="bi bi-clock fs-4 d-block mb-1 text-warning"></i>
-                      07:00 - 17:00
-                    </div>
-                    <div>
-                      <i
-                        class="bi bi-info-circle fs-4 d-block mb-1 text-info"
-                      ></i>
-                      Info Harga
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-12">
-              <div class="card shadow-sm border-0 rounded-4 p-4 mt-2">
-                <h5 class="fw-bold text-center mb-4" style="color: #21a72abb">
-                  Tim Pengembang
-                </h5>
-                <div class="row row-cols-1 row-cols-md-3 g-4 text-center">
-                  <div class="col menu-card">
-                    <img
-                      src="P3.jpg"
-                      class="rounded-circle border border-2 border-primary mb-2"
-                      width="70"
-                    />
-                    <h6 class="fw-bold mb-0">Andika</h6>
-                    <small class="text-muted d-block mb-2"
-                      >Lead Developer/PM</small
-                    >
-                  </div>
-                  <div class="col menu-card">
-                    <img
-                      src="P2.jpg"
-                      class="rounded-circle border border-2 border-success mb-2"
-                      width="70"
-                    />
-                    <h6 class="fw-bold mb-0">Faathir</h6>
-                    <small class="text-muted d-block mb-2"
-                      >UI Designer/Riset</small
-                    >
-                  </div>
-                  <div class="col menu-card">
-                    <img
-                      src="P1.png"
-                      class="rounded-circle border border-2 border-warning mb-2"
-                      width="70"
-                    />
-                    <h6 class="fw-bold mb-0">Lingga</h6>
-                    <small class="text-muted d-block mb-2"
-                      >Designer/Inovator</small
-                    >
-                  </div>
-                </div>
-                <div class="text-center mt-5">
-                  <a
-                    href="rating.html"
-                    class="btn rounded-pill px-5 py-2 shadow-sm fw-bold"
-                    style="
-                      background-color: #21a72abb;
-                      border-color: #21a72abb;
-                      color: white;
-                    "
-                  >
-                    <i class="bi bi-star-fill me-2 text-warning"></i>Beri Rating
-                    Kantin
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div id="page-makanan" class="page-content d-none">
-          <div
-            class="hero mb-4"
-            style="background-image: url(&quot;Food1.jpg&quot;)"
-          >
-            <div class="hero-overlay">
-              <h2 class="fw-bold m-0 display-6">Info Makanan</h2>
-            </div>
-          </div>
-          <div class="row g-3 px-2" id="list-makanan"></div>
-        </div>
-
-        <div id="page-minuman" class="page-content d-none">
-          <div
-            class="hero mb-4"
-            style="
-              background-image: url(&quot;https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?q=80&w=1200&quot;);
-            "
-          >
-            <div class="hero-overlay">
-              <h2 class="fw-bold m-0 display-6">Info Minuman</h2>
-            </div>
-          </div>
-          <div class="row g-3 px-2" id="list-minuman"></div>
         </div>
       </div>
     </div>
 
-    <nav
-      class="fixed-bottom bg-white border-top d-flex justify-content-around py-2 bottom-nav shadow-lg d-md-none"
-    >
-      <div
-        class="text-center nav-item-btn w-100"
-        data-target="makanan"
-        onclick="switchPage('makanan')"
-      >
-        <i class="bi bi-egg-fried fs-4 d-block"></i
-        ><span style="font-size: 10px">Makanan</span>
+    <!-- Quick Menu Preview -->
+    <div class="card shadow-sm border-0 rounded-4 p-4 mb-4">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="fw-bold m-0 t-main"><i class="bi bi-fire me-2 text-danger"></i>Menu Terpopuler</h5>
+        <button class="btn btn-sm rounded-pill px-3 b-main text-white fw-bold" onclick="go('makanan')">Lihat Semua</button>
       </div>
-      <div
-        class="text-center nav-item-btn w-100 active"
-        data-target="home"
-        onclick="switchPage('home')"
-      >
-        <i class="bi bi-house-door-fill fs-4 d-block"></i
-        ><span style="font-size: 10px">Home</span>
+      <div id="best-preview" class="row g-3"></div>
+    </div>
+
+    <!-- Tim -->
+    <div class="card shadow-sm border-0 rounded-4 p-4 text-center">
+      <h5 class="fw-bold mb-4 t-main">Tim Pengembang</h5>
+      <div class="row row-cols-1 row-cols-md-3 g-4" id="team-list"></div>
+      <div class="mt-4">
+        <a href="rating.html" class="btn rounded-pill px-5 py-2 shadow-sm fw-bold text-white b-main">
+          <i class="bi bi-star-fill me-2 text-warning"></i>Beri Rating Kantin
+        </a>
       </div>
-      <div
-        class="text-center nav-item-btn w-100"
-        data-target="minuman"
-        onclick="switchPage('minuman')"
-      >
-        <i class="bi bi-cup-straw fs-4 d-block"></i
-        ><span style="font-size: 10px">Minuman</span>
+    </div>
+  </div>
+
+  <!-- MAKANAN -->
+  <div id="p-makanan" class="page d-none">
+    <div class="hero mb-4" style="background-image:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1200')">
+      <div class="hero-overlay"><h2 class="fw-bold m-0">Menu Makanan</h2></div>
+    </div>
+    <div class="d-flex align-items-center justify-content-between mb-3 px-1 flex-wrap gap-2">
+      <span class="text-muted" style="font-size:.82rem" id="count-makanan"></span>
+      <div class="sub-tab">
+        <button class="active" onclick="filterMenu('makanan','all',this)">Semua</button>
+        <button onclick="filterMenu('makanan','best',this)"><i class="bi bi-fire text-danger"></i> Best</button>
       </div>
-    </nav>
+    </div>
+    <div class="search-wrap mb-3 px-1">
+      <i class="bi bi-search"></i>
+      <input type="text" id="search-makanan" placeholder="Cari makanan..." oninput="renderMenu('makanan')">
+    </div>
+    <div class="row g-3 px-1" id="l-makanan"></div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      const dataMenu = {
-        makanan: [
-          {
-            id: 101,
-            nama: "Nasi Goreng",
-            harga: 5000,
-            desc: "Nasi + Telur + Sosis + Kerupuk",
-            img: "NasiGoreng.jpg",
-          },
-          {
-            id: 102,
-            nama: "Mie Gacoan",
-            harga: 5000,
-            desc: "Mie kenyal dengan kuah gurih",
-            img: "MiwGacoan.jpeg",
-          },
-          {
-            id: 103,
-            nama: "Ayam Geprek Nasi",
-            harga: 7000,
-            desc: "Ayam crispy + sambal bawang",
-            img: "NasiAyam.jpg",
-          },
-        ],
-        minuman: [
-          {
-            id: 201,
-            nama: "Es Teh Manis",
-            harga: 3000,
-            desc: "Segar dan dingin",
-            img: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?q=80&w=400",
-          },
-          {
-            id: 202,
-            nama: "Es Jeruk Peras",
-            harga: 3000,
-            desc: "100% Jeruk asli peras",
-            img: "https://images.unsplash.com/photo-1600271886742-f049cd451bba?q=80&w=400",
-          },
-          {
-            id: 203,
-            nama: "Es Lumut",
-            harga: 3000,
-            desc: "Kopi blend dengan susu segar",
-            img: "EsLumutIjo.jpg",
-          },
-        ],
-      };
+  <!-- MINUMAN -->
+  <div id="p-minuman" class="page d-none">
+    <div class="hero mb-4" style="background-image:url('https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?q=80&w=1200')">
+      <div class="hero-overlay"><h2 class="fw-bold m-0">Menu Minuman</h2></div>
+    </div>
+    <div class="d-flex align-items-center justify-content-between mb-3 px-1 flex-wrap gap-2">
+      <span class="text-muted" style="font-size:.82rem" id="count-minuman"></span>
+      <div class="sub-tab">
+        <button class="active" onclick="filterMenu('minuman','all',this)">Semua</button>
+        <button onclick="filterMenu('minuman','best',this)"><i class="bi bi-fire text-danger"></i> Best</button>
+      </div>
+    </div>
+    <div class="search-wrap mb-3 px-1">
+      <i class="bi bi-search"></i>
+      <input type="text" id="search-minuman" placeholder="Cari minuman..." oninput="renderMenu('minuman')">
+    </div>
+    <div class="row g-3 px-1" id="l-minuman"></div>
+  </div>
 
-      function switchPage(pageId) {
-        document
-          .querySelectorAll(".page-content")
-          .forEach((el) => el.classList.add("d-none"));
-        document.getElementById("page-" + pageId).classList.remove("d-none");
-        document
-          .querySelectorAll(".nav-item-btn, .top-nav-link")
-          .forEach((el) => el.classList.remove("active", "text-primary"));
-        document
-          .querySelectorAll(`[data-target="${pageId}"]`)
-          .forEach((el) => el.classList.add("active"));
+</div>
 
-        window.scrollTo(0, 0);
-      }
+<!-- BOTTOM NAV -->
+<nav class="bot-nav fixed-bottom d-flex justify-content-around py-2 shadow-lg d-md-none" style="z-index:1040">
+  <div class="text-center nav-item-btn w-100 active" data-target="home" onclick="go('home')"><i class="bi bi-house-door-fill fs-4 d-block"></i><span>Home</span></div>
+  <div class="text-center nav-item-btn w-100" data-target="makanan" onclick="go('makanan')"><i class="bi bi-egg-fried fs-4 d-block"></i><span>Makanan</span></div>
+  <div class="text-center nav-item-btn w-100" data-target="minuman" onclick="go('minuman')"><i class="bi bi-cup-straw fs-4 d-block"></i><span>Minuman</span></div>
+</nav>
 
-      function muatTampilanMenu() {
-        const buatKartuHtml = (item) => `
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="card menu-card shadow-sm h-100 border-0 border-start border-4 rounded-3"
-                    style="border-color: #21a72abb !important;">
-                        <div class="card-body d-flex align-items-center gap-3 p-3">
-                            <img src="${
-                              item.img
-                            }" class="rounded-3 object-fit-cover shadow-sm" width="85" height="85" alt="${
-                              item.nama
-                            }">
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1 fw-bold text-dark">${
-                                  item.nama
-                                }</h6>
-                                <small class="text-muted d-block" style="font-size:12px; line-height:1.3;">${
-                                  item.desc
-                                }</small>
-                                <span class="badge mt-2 fs-6" style="color: #21a72abb; background-color: rgba(33, 167, 42, 0.1);">Rp ${item.harga.toLocaleString(
-                                  "id-ID",
-                                )}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
-        document.getElementById("list-makanan").innerHTML = dataMenu.makanan
-          .map(buatKartuHtml)
-          .join("");
-        document.getElementById("list-minuman").innerHTML = dataMenu.minuman
-          .map(buatKartuHtml)
-          .join("");
-      }
-      muatTampilanMenu();
-    </script>
-  </body>
+<!-- FAB CART -->
+<button class="d-md-none btn text-white rounded-circle shadow-lg d-flex align-items-center justify-content-center b-main position-fixed"
+  id="fab-cart" data-bs-toggle="modal" data-bs-target="#cartModal"
+  style="width:60px;height:60px;bottom:82px;right:18px;z-index:1050;font-size:22px;border:none;">
+  <i class="bi bi-cart3"></i>
+  <span id="c-mob" class="position-absolute badge rounded-pill bg-warning text-dark" style="top:4px;right:4px;font-size:9px;min-width:18px;padding:2px 5px;">0</span>
+</button>
+
+<!-- CART MODAL -->
+<div class="modal fade" id="cartModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 rounded-4">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold mb-0">Keranjang Pesanan</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4" id="c-items"></div>
+      <div class="modal-footer border-0 flex-column align-items-stretch d-none" id="c-footer">
+        <div class="d-flex justify-content-between fw-bold fs-5 mb-3 px-2"><span>Total:</span><span class="t-main" id="c-total">Rp 0</span></div>
+        <button class="btn btn-lg rounded-pill fw-bold text-white shadow-sm b-main" onclick="checkout()"><i class="bi bi-bag-check me-2"></i>Pesan Sekarang</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// =============================================
+// CONFIG — ganti dengan BIN_ID dan API_KEY milikmu
+// =============================================
+const JSONBIN_BIN_ID = "GANTI_BIN_ID_DISINI";
+const JSONBIN_API_KEY = "GANTI_API_KEY_DISINI";
+const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`;
+// =============================================
+
+const $ = id => document.getElementById(id), $$ = sel => document.querySelectorAll(sel);
+
+const team = [
+  {n:"Andika",r:"Lead Developer",img:"P3.jpg",c:"primary"},
+  {n:"Faathir",r:"UI Designer",img:"P2.jpg",c:"success"},
+  {n:"Lingga",r:"Inovator",img:"P1.png",c:"warning"}
+];
+
+// Data menu dari JSONBin
+let menuData = { makanan: [], minuman: [] };
+let cart = [];
+let menuFilter = { makanan:'all', minuman:'all' };
+const KANTIN_COLOR = "#21a72a";
+
+// ---- FETCH MENU dari JSONBin ----
+async function loadMenu() {
+  // Tampilkan skeleton loader
+  ['makanan','minuman'].forEach(t => {
+    $(`l-${t}`).innerHTML = `
+      <div class="col-12"><div class="skeleton sk-card"></div></div>
+      <div class="col-12"><div class="skeleton sk-card"></div></div>
+      <div class="col-12"><div class="skeleton sk-card"></div></div>`;
+  });
+
+  try {
+    const res = await fetch(JSONBIN_URL, {
+      headers: { "X-Master-Key": JSONBIN_API_KEY }
+    });
+    if (!res.ok) throw new Error("Gagal fetch");
+    const json = await res.json();
+    menuData = json.record || { makanan: [], minuman: [] };
+  } catch(e) {
+    console.warn("JSONBin gagal, pakai data default:", e);
+    menuData = getDefaultMenu();
+  }
+
+  renderMenu('makanan');
+  renderMenu('minuman');
+  renderBestPreview();
+}
+
+// Data default jika JSONBin belum disetup
+function getDefaultMenu() {
+  return {
+    makanan: [
+      {id:1001,nama:"Nasi Goreng Spesial",harga:8000,desc:"Nasi goreng + telur + sosis",img:"https://images.unsplash.com/photo-1512058454905-6b841e7ad132?q=80&w=400",kategori:"Nasi",best:true},
+      {id:1002,nama:"Mie Goreng",harga:7000,desc:"Mie goreng bumbu rahasia",img:"https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?q=80&w=400",kategori:"Mie",best:false},
+      {id:1003,nama:"Ayam Geprek",harga:10000,desc:"Ayam crispy + sambal bawang",img:"https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?q=80&w=400",kategori:"Ayam",best:true}
+    ],
+    minuman: [
+      {id:2001,nama:"Es Teh Manis",harga:3000,desc:"Segar dan dingin",img:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?q=80&w=400",kategori:"Teh",best:true},
+      {id:2002,nama:"Es Jeruk",harga:4000,desc:"Jeruk peras asli",img:"https://images.unsplash.com/photo-1600271886742-f049cd451bba?q=80&w=400",kategori:"Jus",best:false}
+    ]
+  };
+}
+
+// ---- RENDER MENU ----
+const filterMenu = (type, mode, btn) => {
+  menuFilter[type] = mode;
+  $$(`#p-${type} .sub-tab button`).forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMenu(type);
+};
+
+const renderMenu = type => {
+  const search = ($(`search-${type}`)?.value||'').toLowerCase();
+  const items = (menuData[type]||[]).filter(i =>
+    (menuFilter[type]==='best' ? i.best : true) &&
+    (!search || i.nama.toLowerCase().includes(search) || i.desc.toLowerCase().includes(search))
+  );
+
+  const countEl = $(`count-${type}`);
+  if(countEl) countEl.textContent = `${items.length} item tersedia`;
+
+  const tpl = i => `
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card menu-card shadow-sm h-100 border-start border-4" style="border-color:${KANTIN_COLOR}!important">
+        <div class="card-body d-flex align-items-center gap-3 p-3">
+          <img src="${i.img||'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200'}"
+            class="rounded-3 object-fit-cover shadow-sm flex-shrink-0" width="82" height="82"
+            onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200'">
+          <div class="flex-grow-1 min-w-0">
+            <div class="d-flex flex-wrap gap-1 mb-1">
+              ${i.best?`<span class="badge bg-danger" style="font-size:.6rem"><i class="bi bi-fire"></i> Best</span>`:''}
+              <span class="badge bg-light text-secondary border" style="font-size:.6rem">${i.kategori||'-'}</span>
+            </div>
+            <h6 class="mb-0 fw-bold" style="font-size:.88rem">${i.nama}</h6>
+            <small class="text-muted d-block mb-2 mt-1" style="font-size:.75rem">${i.desc}</small>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="fw-bold" style="color:${KANTIN_COLOR};font-size:.85rem">Rp ${Number(i.harga).toLocaleString("id-ID")}</span>
+              <button class="btn btn-sm text-white rounded-pill px-3" style="background:${KANTIN_COLOR};border:none;font-size:.8rem" onclick="addCart(${i.id})">
+                <i class="bi bi-plus-lg"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  $(`l-${type}`).innerHTML = items.length
+    ? items.map(tpl).join('')
+    : `<div class="col-12 text-center text-muted py-5"><i class="bi bi-search fs-1 d-block mb-2 opacity-25"></i><p>Tidak ada hasil</p></div>`;
+};
+
+const renderBestPreview = () => {
+  const all = [...(menuData.makanan||[]),...(menuData.minuman||[])].filter(i=>i.best).slice(0,3);
+  const tpl = i => `
+    <div class="col-12 col-md-4">
+      <div class="card menu-card shadow-sm border-0 d-flex flex-row align-items-center gap-3 p-3">
+        <img src="${i.img||'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200'}" class="rounded-3 object-fit-cover flex-shrink-0" width="62" height="62"
+          onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200'">
+        <div class="flex-grow-1 min-w-0">
+          <h6 class="mb-0 fw-bold text-truncate" style="font-size:.85rem">${i.nama}</h6>
+          <small class="text-muted d-block" style="font-size:.72rem">${i.desc}</small>
+          <span class="fw-bold t-main" style="font-size:.82rem">Rp ${Number(i.harga).toLocaleString("id-ID")}</span>
+        </div>
+        <button class="btn btn-sm text-white rounded-pill px-2 flex-shrink-0 b-main" onclick="addCart(${i.id})"><i class="bi bi-plus-lg"></i></button>
+      </div>
+    </div>`;
+  $("best-preview").innerHTML = all.length ? all.map(tpl).join('') : `<div class="col-12 text-center text-muted py-3">Belum ada menu best seller</div>`;
+};
+
+// ---- CART ----
+const allItems = () => [...(menuData.makanan||[]),...(menuData.minuman||[])];
+
+const addCart = id => {
+  const item = allItems().find(i=>i.id===id); if(!item) return;
+  const ext = cart.find(i=>i.id===id);
+  ext ? ext.qty++ : cart.push({...item, qty:1, note:""});
+  updCart();
+  Swal.mixin({toast:true,position:"top",showConfirmButton:false,timer:1400})
+    .fire({icon:"success",title:`${item.nama} ditambah`});
+};
+
+const modQty = (id,d) => {
+  const idx = cart.findIndex(i=>i.id===id);
+  if(idx>-1 && (cart[idx].qty+=d)<=0) cart.splice(idx,1);
+  updCart();
+};
+
+const updNote = (id,val) => { const i=cart.find(x=>x.id===id); if(i) i.note=val; };
+
+const updCart = () => {
+  const totQty = cart.reduce((s,i)=>s+i.qty,0), totPr = cart.reduce((s,i)=>s+i.harga*i.qty,0);
+  $("c-desk").innerText = $("c-mob").innerText = totQty;
+  $("c-total").innerText = `Rp ${totPr.toLocaleString("id-ID")}`;
+  const fab = $("fab-cart"); if(fab) fab.classList.toggle("has-item",totQty>0);
+
+  if(!cart.length){
+    $("c-items").innerHTML = `<div class="text-center text-muted py-4"><i class="bi bi-cart-x fs-1 d-block mb-2 opacity-25"></i><p>Keranjang kosong</p></div>`;
+    $("c-footer").classList.add("d-none");
+  } else {
+    $("c-footer").classList.remove("d-none");
+    $("c-items").innerHTML = cart.map(i=>`
+      <div class="mb-3 pb-3 border-bottom">
+        <div class="d-flex align-items-center gap-3">
+          <img src="${i.img||''}" class="rounded-3 object-fit-cover flex-shrink-0" width="48" height="48"
+            onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=100'">
+          <div class="flex-grow-1">
+            <h6 class="mb-0 fw-bold" style="font-size:.88rem">${i.nama}</h6>
+            <small class="text-success fw-bold">Rp ${Number(i.harga).toLocaleString("id-ID")}</small>
+          </div>
+          <div class="d-flex align-items-center gap-1 flex-shrink-0">
+            <button class="btn btn-sm btn-outline-secondary rounded-circle" style="width:28px;height:28px;padding:0;line-height:1.6" onclick="modQty(${i.id},-1)">-</button>
+            <span class="fw-bold px-1">${i.qty}</span>
+            <button class="btn btn-sm btn-outline-success rounded-circle" style="width:28px;height:28px;padding:0;line-height:1.6" onclick="modQty(${i.id},1)">+</button>
+          </div>
+        </div>
+        <input type="text" class="form-control form-control-sm mt-2 rounded-3" placeholder="Catatan..." value="${i.note}" oninput="updNote(${i.id},this.value)">
+      </div>`).join('');
+  }
+};
+
+// ---- CHECKOUT ----
+const checkout = () => {
+  bootstrap.Modal.getInstance($("cartModal")).hide();
+  Swal.fire({title:"Memproses...",timer:1000,didOpen:()=>Swal.showLoading(),showConfirmButton:false}).then(()=>{
+    Swal.fire({
+      title:"Metode Pembayaran",
+      html:`<button class="btn btn-outline-primary swal-pay-btn mb-2" onclick="qris()"><i class="bi bi-qr-code-scan"></i> QRIS</button>
+            <button class="btn btn-outline-success swal-pay-btn" onclick="sukses('Tunai')"><i class="bi bi-cash-coin"></i> Tunai di Kasir</button>`,
+      showConfirmButton:false,showCancelButton:true,cancelButtonText:"Batal"
+    });
+  });
+};
+
+const qris = () => {
+  const pr = cart.reduce((s,i)=>s+i.harga*i.qty,0);
+  Swal.fire({
+    title:"Scan QRIS",
+    html:`<p class="text-muted small">Scan via E-Wallet / M-Banking</p>
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=KantinGo:Rp${pr}" class="border rounded p-1 mb-3" width="200">
+          <h5 class="fw-bold t-main">Rp ${pr.toLocaleString("id-ID")}</h5>`,
+    showCancelButton:true,confirmButtonText:"Sudah Bayar",confirmButtonColor:"#21a72abb"
+  }).then(r=>r.isConfirmed&&sukses("QRIS"));
+};
+
+const sukses = m => {
+  Swal.fire({title:"Verifikasi...",timer:1500,didOpen:()=>Swal.showLoading(),showConfirmButton:false}).then(()=>{
+    Swal.fire({icon:"success",title:"Berhasil!",text:m==="QRIS"?"Pembayaran QRIS berhasil!":"Bayar di kasir ya!",confirmButtonColor:"#21a72abb"});
+    cart=[]; updCart();
+  });
+};
+
+// ---- NAVIGASI ----
+const go = id => {
+  $$(".page").forEach(e=>e.classList.add("d-none"));
+  $(`p-${id}`).classList.remove("d-none");
+  $$(".nav-item-btn,.top-nav-link").forEach(e=>e.classList.remove("active"));
+  $$(`[data-target="${id}"]`).forEach(e=>e.classList.add("active"));
+  scrollTo(0,0);
+};
+
+// ---- STATUS KANTIN ----
+const cekKantin = () => {
+  const jam=new Date().getHours(), buka=jam>=7&&jam<17, el=$("k-status");
+  el.innerText = buka?"BUKA":"TUTUP";
+  el.className = `badge rounded-pill mt-1 d-block shadow-sm ${buka?'bg-success':'bg-danger'}`;
+};
+
+// ---- INIT ----
+$("team-list").innerHTML = team.map(t=>`
+  <div class="col menu-card text-center">
+    <img src="${t.img}" class="rounded-circle border border-2 border-${t.c} mb-2" width="70"
+      onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(t.n)}&background=21a72a&color=fff&size=70'">
+    <h6 class="fw-bold mb-0">${t.n}</h6><small class="text-muted">${t.r}</small>
+  </div>`).join('');
+
+cekKantin();
+setInterval(cekKantin, 60000);
+loadMenu();
+</script>
+</body>
 </html>
