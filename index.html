@@ -62,7 +62,7 @@
 </head>
 <body>
 
-<!-- DESKTOP NAVBAR -->
+<!Navbar lah iki>
 <nav class="top-navbar navbar navbar-expand-md sticky-top d-none d-md-flex py-3">
   <div class="container">
     <a class="navbar-brand fw-bold fs-4 t-main" href="#"><i class="bi bi-shop-window"></i> KantinGo</a>
@@ -82,7 +82,7 @@
 
 <div class="container pb-5 mb-5 mt-0 mt-md-2">
 
-  <!-- HOME -->
+  <!Dinggo Home>
   <div id="p-home" class="page">
     <div class="hero mb-4" style="background-image:url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200')">
       <div class="hero-overlay">
@@ -119,7 +119,7 @@
     </div>
   </div>
 
-  <!-- MAKANAN -->
+  <!Buat Maeman>
   <div id="p-makanan" class="page d-none">
     <div class="hero mb-4" style="background-image:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1200')">
       <div class="hero-overlay"><h2 class="fw-bold m-0">Menu Makanan</h2></div>
@@ -141,7 +141,7 @@
     </div>
   </div>
 
-  <!-- MINUMAN -->
+  <!anu Minum>
   <div id="p-minuman" class="page d-none">
     <div class="hero mb-4" style="background-image:url('https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?q=80&w=1200')">
       <div class="hero-overlay"><h2 class="fw-bold m-0">Menu Minuman</h2></div>
@@ -165,7 +165,7 @@
 
 </div>
 
-<!-- BOTTOM NAV -->
+<!Ini Anu Nav BWah>
 <nav class="bot-nav fixed-bottom d-flex justify-content-around py-2 shadow-lg d-md-none" style="z-index:1040">
   <div class="text-center nav-item-btn w-100 active" data-target="home" onclick="go('home')">
     <i class="bi bi-house-door-fill fs-4 d-block"></i><span>Home</span>
@@ -178,7 +178,7 @@
   </div>
 </nav>
 
-<!-- FAB CART -->
+<!Keranjang Ketok e>
 <button class="d-md-none btn text-white rounded-circle shadow-lg d-flex align-items-center justify-content-center b-main position-fixed"
   id="fab-cart" data-bs-toggle="modal" data-bs-target="#cartModal"
   style="width:60px;height:60px;bottom:82px;right:18px;z-index:1050;font-size:22px;border:none;">
@@ -187,7 +187,7 @@
     style="top:4px;right:4px;font-size:9px;min-width:18px;padding:2px 5px;">0</span>
 </button>
 
-<!-- CART MODAL -->
+<!Modal Keranjang>
 <div class="modal fade" id="cartModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content border-0 rounded-4">
@@ -210,13 +210,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// ============================================================
-// CONFIG
-// ============================================================
 const JSONBIN_BIN_ID  = "69f9485836566621a82699c4";
 const JSONBIN_API_KEY = "$2a$10$yeNFeh35hEUuTVcEY4znkuLrYqTqLCZMpioDuaGPnZD0pGJJgAgLK";
-// ============================================================
-
 const BIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`;
 const $ = id => document.getElementById(id), $$ = s => document.querySelectorAll(s);
 
@@ -231,7 +226,7 @@ let cart = [];
 let menuFilter = { makanan:"all", minuman:"all" };
 const COLOR = "#21a72a";
 
-// ---- FETCH DARI JSONBIN ----
+// FETCH SEKO JSONBIN
 async function loadMenu() {
   try {
     const res = await fetch(BIN_URL, {
@@ -252,7 +247,7 @@ async function loadMenu() {
   renderBestPreview();
 }
 
-// ---- NAVIGASI ----
+// iki navigasi ketok e
 const go = id => {
   $$(".page").forEach(e => e.classList.add("d-none"));
   $(`p-${id}`).classList.remove("d-none");
@@ -261,7 +256,7 @@ const go = id => {
   scrollTo(0, 0);
 };
 
-// ---- FILTER & RENDER MENU ----
+// Buat Ngefilter
 const filterMenu = (type, mode, btn) => {
   menuFilter[type] = mode;
   $$(`#p-${type} .sub-tab button`).forEach(b => b.classList.remove("active"));
@@ -332,7 +327,7 @@ const renderBestPreview = () => {
     </div>`).join('');
 };
 
-// ---- CART ----
+// Nah iki Keranjang Utama
 const allItems = () => [...(menuData.makanan || []), ...(menuData.minuman || [])];
 
 const addCart = id => {
@@ -388,7 +383,7 @@ const updCart = () => {
   }
 };
 
-// ---- CHECKOUT ----
+// Buat Chekout
 const checkout = () => {
   bootstrap.Modal.getInstance($("cartModal")).hide();
   Swal.fire({ title:"Memproses...", timer:1000, didOpen:()=>Swal.showLoading(), showConfirmButton:false }).then(() => {
@@ -420,7 +415,7 @@ const sukses = m => {
   });
 };
 
-// ---- STATUS KANTIN ----
+// Bukak tutup Kantin
 const cekKantin = () => {
   const jam = new Date().getHours(), buka = jam >= 7 && jam < 17;
   const el = $("k-status");
@@ -428,7 +423,7 @@ const cekKantin = () => {
   el.className = `badge rounded-pill mt-1 d-block shadow-sm ${buka ? 'bg-success' : 'bg-danger'}`;
 };
 
-// ---- INIT ----
+// Mbuh Manut tutorial yutub
 $("team-list").innerHTML = team.map(t => `
   <div class="col">
     <img src="${t.img}" class="rounded-circle border border-2 border-${t.c} mb-2" width="70"
