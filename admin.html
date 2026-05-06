@@ -192,8 +192,6 @@ const IMGBB_API_KEY   = "181c37c295a5af7fbc3640042edea412";
 const JSONBIN_BIN_ID  = "69f9485836566621a82699c4";
 const JSONBIN_API_KEY = "$2a$10$yeNFeh35hEUuTVcEY4znkuLrYqTqLCZMpioDuaGPnZD0pGJJgAgLK";
 const ADMIN_PASSWORD  = "ellao";
-// ============================================================
-
 const BIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 const $ = id => document.getElementById(id);
 
@@ -293,7 +291,11 @@ const switchTab = t => {
   renderList();
 };
 
-// ---- UPLOAD GAMBAR ----
+// ---- UPLOAD GAMBAR via Cloudinary ----
+// Cloudinary tidak memblokir hotlink, cocok untuk tampil di semua device
+const CLOUDINARY_CLOUD = "GANTI_CLOUD_NAME"; // ganti dengan cloud name kamu
+const CLOUDINARY_PRESET = "kantingo_upload";  // ganti dengan upload preset kamu
+
 const readFileAsBase64 = file => new Promise((resolve, reject) => {
   const r = new FileReader();
   r.onload = e => resolve(e.target.result);
@@ -327,7 +329,6 @@ const handleUpload = async input => {
     return;
   }
 
-  // Reset
   uploadedImgUrl = "";
   $("f-img").value = "";
   $("btn-submit").disabled = true;
@@ -339,49 +340,77 @@ const handleUpload = async input => {
   $("upload-area").querySelector("p").innerHTML =
     `<strong style="color:#333">${file.name}</strong><br>
      <span style="font-size:.7rem;color:#aaa">${(file.size/1024).toFixed(0)} KB — mengupload...</span>`;
-  setUploadStatus("⏳ Mengupload ke ImgBB...", "text-warning");
+  setUploadStatus("⏳ Mengupload gambar...", "text-warning");
 
-  // Kompres dulu
   const compressed = await kompresGambar(file);
 
-  // Retry upload sampai 3x
+  // Coba Cloudinary dulu (lebih andal, tidak blokir hotlink)
   let berhasil = false;
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    try {
-      const form = new FormData();
-      form.append("image", compressed, "upload.jpg");
-      const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-        method: "POST", body: form
-      });
-      const json = await res.json();
-      if (!json.success) throw new Error(json.error?.message || "Respons tidak sukses");
 
-      // Gunakan image.url — URL permanen dari ImgBB
-      uploadedImgUrl = json.data.image ? json.data.image.url : json.data.url;
-      $("f-img").value = uploadedImgUrl;
-      setUploadStatus("✅ Gambar berhasil diupload!", "text-success");
-      $("upload-area").querySelector("p").innerHTML =
-        `<strong style="color:#21a72a">✅ ${file.name}</strong><br>
-         <span style="font-size:.7rem;color:#aaa">Siap disimpan</span>`;
-      berhasil = true;
-      break;
-    } catch (e) {
-      console.warn(`ImgBB attempt ${attempt} gagal:`, e);
-      if (attempt < 3) {
-        setUploadStatus(`⏳ Mencoba ulang (${attempt}/3)...`, "text-warning");
-        await new Promise(r => setTimeout(r, 1500));
+  if (CLOUDINARY_CLOUD !== "GANTI_CLOUD_NAME") {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const form = new FormData();
+        form.append("file", compressed);
+        form.append("upload_preset", CLOUDINARY_PRESET);
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,
+          { method: "POST", body: form }
+        );
+        const json = await res.json();
+        if (!json.secure_url) throw new Error("Tidak ada URL");
+        uploadedImgUrl = json.secure_url;
+        $("f-img").value = uploadedImgUrl;
+        setUploadStatus("✅ Gambar berhasil diupload!", "text-success");
+        $("upload-area").querySelector("p").innerHTML =
+          `<strong style="color:#21a72a">✅ ${file.name}</strong><br>
+           <span style="font-size:.7rem;color:#aaa">Siap disimpan</span>`;
+        berhasil = true;
+        break;
+      } catch(e) {
+        console.warn(`Cloudinary attempt ${attempt} gagal:`, e);
+        if (attempt < 3) await new Promise(r => setTimeout(r, 1500));
+      }
+    }
+  }
+
+  // Fallback ke ImgBB jika Cloudinary belum disetup atau gagal
+  if (!berhasil) {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const form = new FormData();
+        form.append("image", compressed, "upload.jpg");
+        const res = await fetch(
+          `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
+          { method: "POST", body: form }
+        );
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error?.message || "Gagal");
+        uploadedImgUrl = json.data.image ? json.data.image.url : json.data.url;
+        $("f-img").value = uploadedImgUrl;
+        setUploadStatus("✅ Gambar berhasil diupload!", "text-success");
+        $("upload-area").querySelector("p").innerHTML =
+          `<strong style="color:#21a72a">✅ ${file.name}</strong><br>
+           <span style="font-size:.7rem;color:#aaa">Siap disimpan</span>`;
+        berhasil = true;
+        break;
+      } catch(e) {
+        console.warn(`ImgBB attempt ${attempt} gagal:`, e);
+        if (attempt < 3) {
+          setUploadStatus(`⏳ Mencoba ulang (${attempt}/3)...`, "text-warning");
+          await new Promise(r => setTimeout(r, 1500));
+        }
       }
     }
   }
 
   if (!berhasil) {
-    // Gagal total — JANGAN pakai base64, gambar harus dari ImgBB agar bisa dibuka di semua device
     uploadedImgUrl = "";
     $("f-img").value = "";
     $("img-preview-box").classList.remove("show");
     $("img-preview-box").src = "";
     $("upload-area").querySelector("p").innerHTML =
-      `<span style="color:#e74c3c;font-size:.82rem">❌ Upload gagal!</span><br>
+      `<span style="color:#e74c3c">❌ Upload gagal!</span><br>
        <span style="font-size:.7rem;color:#aaa">Cek koneksi lalu pilih foto lagi</span>`;
     setUploadStatus("❌ Gagal upload. Pilih foto lagi setelah koneksi stabil.", "text-danger");
     input.value = "";
@@ -478,7 +507,7 @@ const renderList = () => {
   $("menu-list").innerHTML = [...items].reverse().map(i => `
     <div class="menu-item-card">
       <img src="${i.img||''}" alt="${i.nama}"
-        onerror="this.style.background='#e8edf2'">
+        onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200'">
       <div class="item-info">
         <div class="d-flex align-items-center gap-1 mb-1">
           <h6>${i.nama}</h6>
