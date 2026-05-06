@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KantinGo — Fix Gambar</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background:#f0f4f8; padding:20px; }
+    .box { background:#fff; border-radius:16px; padding:24px; max-width:600px; margin:0 auto; box-shadow:0 4px 20px rgba(0,0,0,.08); }
+    h2 { color:#21a72a; margin-bottom:4px; }
+    p { color:#666; font-size:.88rem; }
+    .item { background:#f8f9fa; border-radius:12px; padding:14px; margin-bottom:12px; display:flex; gap:12px; align-items:center; }
+    .item img { width:60px; height:60px; object-fit:cover; border-radius:8px; flex-shrink:0; border:1px solid #eee; }
+    .item-info { flex-grow:1; }
+    .item-info strong { display:block; font-size:.88rem; }
+    .item-info small { font-size:.72rem; color:#999; word-break:break-all; }
+    .badge-ok  { background:#d1fae5; color:#065f46; font-size:.7rem; padding:2px 8px; border-radius:20px; font-weight:700; }
+    .badge-err { background:#fee2e2; color:#991b1b; font-size:.7rem; padding:2px 8px; border-radius:20px; font-weight:700; }
+    .badge-wait{ background:#fef3c7; color:#92400e; font-size:.7rem; padding:2px 8px; border-radius:20px; font-weight:700; }
+    .btn { background:#21a72a; color:#fff; border:none; border-radius:12px; padding:12px 24px;
+      font-weight:700; font-size:.9rem; cursor:pointer; width:100%; margin-top:8px; }
+    .btn:disabled { opacity:.5; cursor:not-allowed; }
+    .btn-red { background:#e74c3c; }
+    .log { background:#111; color:#0f0; border-radius:8px; padding:12px; font-size:.75rem; font-family:monospace;
+      margin-top:12px; max-height:150px; overflow-y:auto; }
+    #status { font-weight:700; margin:12px 0; color:#21a72a; }
+  </style>
+</head>
+<body>
+<div class="box">
+  <h2>🔧 KantinGo — Fix Gambar</h2>
+  <p>Tool ini akan mengecek semua gambar menu. Gambar yang tidak bisa dibuka di semua device akan dideteksi.</p>
+  <div id="status">Klik tombol untuk mulai...</div>
+  <button class="btn" id="btn-cek" onclick="cekSemua()">🔍 Cek Semua Gambar</button>
+  <div id="list" style="margin-top:16px"></div>
+  <div class="log" id="log" style="display:none"></div>
+</div>
+
+<script>
+const BIN_ID  = "69f9485836566621a82699c4";
+const API_KEY = "$2a$10$yeNFeh35hEUuTVcEY4znkuLrYqTqLCZMpioDuaGPnZD0pGJJgAgLK";
+const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+let menuData = { makanan:[], minuman:[] };
+
+function log(msg) {
+  const el = document.getElementById("log");
+  el.style.display = "block";
+  el.innerHTML += msg + "\n";
+  el.scrollTop = el.scrollHeight;
+}
+
+function setStatus(msg) { document.getElementById("status").textContent = msg; }
+
+// Cek apakah URL gambar bisa diload
+function testImage(url) {
+  return new Promise(resolve => {
+    if (!url || url.startsWith("data:")) { resolve(false); return; }
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = url + "?t=" + Date.now();
+    setTimeout(() => resolve(false), 5000);
+  });
+}
+
+async function cekSemua() {
+  document.getElementById("btn-cek").disabled = true;
+  setStatus("⏳ Memuat data dari JSONBin...");
+  document.getElementById("list").innerHTML = "";
+
+  try {
+    const res = await fetch(`${BIN_URL}/latest`, { headers:{ "X-Master-Key": API_KEY } });
+    const json = await res.json();
+    menuData.makanan = json.record.makanan || [];
+    menuData.minuman = json.record.minuman || [];
+  } catch(e) {
+    setStatus("❌ Gagal load JSONBin: " + e.message);
+    document.getElementById("btn-cek").disabled = false;
+    return;
+  }
+
+  const semua = [
+    ...menuData.makanan.map(i => ({...i, tipe:"makanan"})),
+    ...menuData.minuman.map(i => ({...i, tipe:"minuman"}))
+  ];
+
+  setStatus(`⏳ Mengecek ${semua.length} item...`);
+  const listEl = document.getElementById("list");
+  let adaMasalah = false;
+
+  for (const item of semua) {
+    const ok = await testImage(item.img);
+    const isBase64 = item.img?.startsWith("data:");
+    const badge = isBase64 ? "badge-err" : (ok ? "badge-ok" : "badge-err");
+    const label = isBase64 ? "❌ Base64 (tidak bisa dilihat device lain)" : (ok ? "✅ OK" : "❌ Gambar rusak/tidak bisa dibuka");
+    if (!ok || isBase64) adaMasalah = true;
+
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `
+      <img src="${ok && !isBase64 ? item.img : ''}" onerror="this.style.background='#eee'" style="${!ok||isBase64?'background:#eee':''}">
+      <div class="item-info">
+        <strong>${item.nama} <span class="badge-wait" style="font-size:.65rem">${item.tipe}</span></strong>
+        <small>${item.img ? item.img.substring(0,60)+"..." : "(kosong)"}</small><br>
+        <span class="${badge}">${label}</span>
+      </div>`;
+    listEl.appendChild(div);
+    log(`[${item.tipe}] ${item.nama}: ${ok && !isBase64 ? "OK" : "MASALAH"}`);
+  }
+
+  if (adaMasalah) {
+    setStatus("⚠️ Ada gambar bermasalah! Hapus item tersebut dari admin, lalu tambah ulang dengan foto baru.");
+    const info = document.createElement("div");
+    info.style.cssText = "background:#fef3c7;border-radius:12px;padding:16px;margin-top:12px;font-size:.85rem;color:#92400e;";
+    info.innerHTML = `<strong>⚠️ Cara fix:</strong><br>
+      1. Buka <code>admin.html</code><br>
+      2. Hapus menu yang gambarnya ❌<br>
+      3. Tambah ulang menu tersebut dengan upload foto baru<br>
+      4. Tunggu status <strong>"✅ Gambar berhasil diupload!"</strong> sebelum klik Tambah`;
+    listEl.appendChild(info);
+  } else {
+    setStatus("✅ Semua gambar OK! Harusnya muncul di semua device.");
+  }
+
+  document.getElementById("btn-cek").disabled = false;
+}
+</script>
+</body>
+</html>
