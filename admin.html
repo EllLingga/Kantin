@@ -189,9 +189,13 @@
 // CONFIG
 // ============================================================
 const IMGBB_API_KEY   = "181c37c295a5af7fbc3640042edea412";
+const CLOUDINARY_CLOUD  = "deshlk5ef";
+const CLOUDINARY_PRESET = "kantingo_upload";
 const JSONBIN_BIN_ID  = "69f9485836566621a82699c4";
 const JSONBIN_API_KEY = "$2a$10$yeNFeh35hEUuTVcEY4znkuLrYqTqLCZMpioDuaGPnZD0pGJJgAgLK";
 const ADMIN_PASSWORD  = "ellao";
+// ============================================================
+
 const BIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 const $ = id => document.getElementById(id);
 
@@ -291,11 +295,8 @@ const switchTab = t => {
   renderList();
 };
 
-// ---- UPLOAD GAMBAR via Cloudinary ----
-// Cloudinary tidak memblokir hotlink, cocok untuk tampil di semua device
-const CLOUDINARY_CLOUD = "GANTI_CLOUD_NAME"; // ganti dengan cloud name kamu
-const CLOUDINARY_PRESET = "kantingo_upload";  // ganti dengan upload preset kamu
-
+// ---- UPLOAD GAMBAR ----
+// Baca file jadi base64 (Promise)
 const readFileAsBase64 = file => new Promise((resolve, reject) => {
   const r = new FileReader();
   r.onload = e => resolve(e.target.result);
@@ -303,121 +304,71 @@ const readFileAsBase64 = file => new Promise((resolve, reject) => {
   r.readAsDataURL(file);
 });
 
-// Kompres gambar sebelum upload
-const kompresGambar = (file, maxW=900) => new Promise(resolve => {
-  const img = new Image();
-  const url = URL.createObjectURL(file);
-  img.onload = () => {
-    const ratio = Math.min(1, maxW / img.width);
-    const canvas = document.createElement('canvas');
-    canvas.width  = img.width  * ratio;
-    canvas.height = img.height * ratio;
-    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-    URL.revokeObjectURL(url);
-    canvas.toBlob(blob => resolve(blob || file), 'image/jpeg', 0.82);
-  };
-  img.onerror = () => resolve(file);
-  img.src = url;
-});
-
 const handleUpload = async input => {
   const file = input.files[0];
   if (!file) return;
-  if (file.size > 15 * 1024 * 1024) {
-    setUploadStatus("❌ File max 15MB!", "text-danger");
+  if (file.size > 5 * 1024 * 1024) {
+    setUploadStatus("❌ File max 5MB!", "text-danger");
     input.value = "";
     return;
   }
 
+  // Reset URL dulu
   uploadedImgUrl = "";
   $("f-img").value = "";
+
+  // Preview lokal langsung (pakai base64)
+  const base64 = await readFileAsBase64(file);
+  $("img-preview-box").src = base64;
+  $("img-preview-box").classList.add("show");
+  $("upload-area").querySelector("p").innerHTML = `<strong style="color:#333">${file.name}</strong><br><span style="font-size:.7rem;color:#aaa">${(file.size/1024).toFixed(0)} KB</span>`;
+
+  setUploadStatus("⏳ Mengupload ke ImgBB...", "text-warning");
   $("btn-submit").disabled = true;
 
-  // Preview lokal dulu
-  const base64Preview = await readFileAsBase64(file);
-  $("img-preview-box").src = base64Preview;
-  $("img-preview-box").classList.add("show");
-  $("upload-area").querySelector("p").innerHTML =
-    `<strong style="color:#333">${file.name}</strong><br>
-     <span style="font-size:.7rem;color:#aaa">${(file.size/1024).toFixed(0)} KB — mengupload...</span>`;
-  setUploadStatus("⏳ Mengupload gambar...", "text-warning");
-
-  const compressed = await kompresGambar(file);
-
-  // Coba Cloudinary dulu (lebih andal, tidak blokir hotlink)
-  let berhasil = false;
-
-  if (CLOUDINARY_CLOUD !== "GANTI_CLOUD_NAME") {
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        const form = new FormData();
-        form.append("file", compressed);
-        form.append("upload_preset", CLOUDINARY_PRESET);
-        const res = await fetch(
-          `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,
-          { method: "POST", body: form }
-        );
-        const json = await res.json();
-        if (!json.secure_url) throw new Error("Tidak ada URL");
-        uploadedImgUrl = json.secure_url;
-        $("f-img").value = uploadedImgUrl;
-        setUploadStatus("✅ Gambar berhasil diupload!", "text-success");
-        $("upload-area").querySelector("p").innerHTML =
-          `<strong style="color:#21a72a">✅ ${file.name}</strong><br>
-           <span style="font-size:.7rem;color:#aaa">Siap disimpan</span>`;
-        berhasil = true;
-        break;
-      } catch(e) {
-        console.warn(`Cloudinary attempt ${attempt} gagal:`, e);
-        if (attempt < 3) await new Promise(r => setTimeout(r, 1500));
-      }
+  try {
+    const form = new FormData();
+    form.append("image", file);
+    // Coba Cloudinary dulu (tidak blokir hotlink, bisa dilihat semua device)
+    try {
+      const cForm = new FormData();
+      cForm.append("file", form.get("image"));
+      cForm.append("upload_preset", CLOUDINARY_PRESET);
+      const cRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+        method: "POST", body: cForm
+      });
+      const cJson = await cRes.json();
+      if (!cJson.secure_url) throw new Error("No URL");
+      uploadedImgUrl = cJson.secure_url;
+    } catch(ce) {
+      // Fallback ImgBB
+      const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+        method: "POST", body: form
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error?.message || "Upload gagal");
+      uploadedImgUrl = json.data.image ? json.data.image.url : json.data.url;
     }
-  }
-
-  // Fallback ke ImgBB jika Cloudinary belum disetup atau gagal
-  if (!berhasil) {
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        const form = new FormData();
-        form.append("image", compressed, "upload.jpg");
-        const res = await fetch(
-          `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
-          { method: "POST", body: form }
-        );
-        const json = await res.json();
-        if (!json.success) throw new Error(json.error?.message || "Gagal");
-        uploadedImgUrl = json.data.image ? json.data.image.url : json.data.url;
-        $("f-img").value = uploadedImgUrl;
-        setUploadStatus("✅ Gambar berhasil diupload!", "text-success");
-        $("upload-area").querySelector("p").innerHTML =
-          `<strong style="color:#21a72a">✅ ${file.name}</strong><br>
-           <span style="font-size:.7rem;color:#aaa">Siap disimpan</span>`;
-        berhasil = true;
-        break;
-      } catch(e) {
-        console.warn(`ImgBB attempt ${attempt} gagal:`, e);
-        if (attempt < 3) {
-          setUploadStatus(`⏳ Mencoba ulang (${attempt}/3)...`, "text-warning");
-          await new Promise(r => setTimeout(r, 1500));
-        }
-      }
+    $("f-img").value = uploadedImgUrl;
+    setUploadStatus("✅ Gambar berhasil diupload!", "text-success");
+  } catch (e) {
+    console.warn("ImgBB gagal:", e);
+    // Fallback base64 hanya jika file kecil (< 100KB) — file besar akan gagalkan JSONBin
+    if (file.size < 100 * 1024) {
+      uploadedImgUrl = base64;
+      $("f-img").value = base64;
+      setUploadStatus("✅ Gambar siap (mode lokal)", "text-success");
+    } else {
+      uploadedImgUrl = "";
+      $("f-img").value = "";
+      $("img-preview-box").classList.remove("show");
+      setUploadStatus("❌ Upload ke server gagal. Coba lagi atau pakai gambar lebih kecil.", "text-danger");
     }
+  } finally {
+    $("btn-submit").disabled = false;
   }
+};
 
-  if (!berhasil) {
-    uploadedImgUrl = "";
-    $("f-img").value = "";
-    $("img-preview-box").classList.remove("show");
-    $("img-preview-box").src = "";
-    $("upload-area").querySelector("p").innerHTML =
-      `<span style="color:#e74c3c">❌ Upload gagal!</span><br>
-       <span style="font-size:.7rem;color:#aaa">Cek koneksi lalu pilih foto lagi</span>`;
-    setUploadStatus("❌ Gagal upload. Pilih foto lagi setelah koneksi stabil.", "text-danger");
-    input.value = "";
-  }
-
-  $("btn-submit").disabled = false;
-}
 const setUploadStatus = (msg, cls) => {
   const el = $("upload-status");
   el.textContent = msg;
