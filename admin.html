@@ -8,77 +8,225 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    :root { --green:#21a72a; --green-a:rgba(33,167,42,.85); --green-soft:rgba(33,167,42,.1); --red:#e74c3c; --bg:#f0f4f8; }
-    * { box-sizing:border-box; }
-    body { background:var(--bg); font-family:'Plus Jakarta Sans',sans-serif; min-height:100vh; }
-    .t-main { color:var(--green-a)!important; }
-    .b-main { background:var(--green-a)!important; }
+    :root {
+      --green: #21a72a;
+      --green-a: rgba(33,167,42,.85);
+      --green-soft: rgba(33,167,42,.1);
+      --red: #e74c3c;
+      --bg: #f0f4f8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; }
 
-    .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.07); padding:14px 20px;
-      display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
-    .topbar .brand { font-size:1.15rem; font-weight:800; color:var(--green-a); display:flex; align-items:center; gap:8px; }
-    .admin-badge { background:var(--green-soft); color:var(--green); border:1px solid rgba(33,167,42,.2);
-      font-size:.65rem; font-weight:700; padding:3px 10px; border-radius:20px; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(33,167,42,.3); border-radius: 99px; }
 
-    .tab-bar { display:flex; gap:4px; background:#fff; border-radius:40px; padding:4px; box-shadow:0 2px 10px rgba(0,0,0,.07); }
-    .tab-bar button { border:none; background:transparent; border-radius:30px; padding:8px 20px;
-      font-weight:700; font-size:.82rem; color:#777; transition:.2s; font-family:inherit; cursor:pointer; }
-    .tab-bar button.active { background:var(--green-a); color:#fff; }
+    .t-main { color: var(--green-a) !important; }
+    .b-main { background: var(--green-a) !important; }
 
-    .form-card { background:#fff; border-radius:20px; box-shadow:0 4px 20px rgba(0,0,0,.07); padding:24px; }
-    .form-label { font-weight:700; font-size:.8rem; color:#555; margin-bottom:4px; }
-    .form-control, .form-select { border-radius:12px; border:1.5px solid #e0e6ef; padding:10px 14px;
-      font-family:inherit; font-size:.88rem; transition:.2s; }
-    .form-control:focus { border-color:var(--green); box-shadow:0 0 0 3px var(--green-soft); outline:none; }
-    .btn-add { background:var(--green-a); color:#fff; border:none; border-radius:14px; padding:13px;
-      font-weight:700; font-size:.9rem; width:100%; transition:.2s; font-family:inherit; cursor:pointer; }
-    .btn-add:active { transform:scale(.97); }
-    .btn-add:disabled { opacity:.5; cursor:not-allowed; }
+    /* ── TOPBAR ── */
+    .topbar {
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 1px 0 rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+      padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .brand { font-size: 1.15rem; font-weight: 800; color: var(--green-a); display: flex; align-items: center; gap: 8px; }
+    .admin-badge {
+      background: var(--green-soft); color: var(--green);
+      border: 1px solid rgba(33,167,42,.2);
+      font-size: .62rem; font-weight: 700; padding: 2px 10px; border-radius: 20px;
+    }
 
-    .toggle-wrap { display:flex; align-items:center; gap:10px; }
-    .toggle-switch { position:relative; width:46px; height:26px; flex-shrink:0; }
-    .toggle-switch input { opacity:0; width:0; height:0; }
-    .toggle-slider { position:absolute; cursor:pointer; inset:0; background:#ccc; border-radius:26px; transition:.3s; }
-    .toggle-slider:before { position:absolute; content:""; height:20px; width:20px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.3s; }
-    input:checked + .toggle-slider { background:var(--green-a); }
-    input:checked + .toggle-slider:before { transform:translateX(20px); }
+    /* ── LOGIN ── */
+    #login-screen {
+      position: fixed; inset: 0; background: var(--bg);
+      z-index: 999; display: flex; align-items: center; justify-content: center;
+    }
+    .login-box {
+      background: #fff; border-radius: 24px; padding: 40px 32px;
+      width: 100%; max-width: 360px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.12);
+      text-align: center;
+      animation: loginPop .5s cubic-bezier(.4,0,.2,1) both;
+    }
+    @keyframes loginPop {
+      from { opacity: 0; transform: translateY(20px) scale(.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .login-box h2 { color: var(--green-a); font-weight: 800; margin-bottom: 4px; }
+    .login-icon {
+      font-size: 3.5rem; margin-bottom: 12px; display: block;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-8px); }
+    }
 
-    .upload-area { border:2px dashed #d0d8e4; border-radius:14px; padding:22px;
-      text-align:center; cursor:pointer; transition:.2s; background:#fafbfc; position:relative; overflow:hidden; }
-    .upload-area:hover { border-color:var(--green); background:var(--green-soft); }
-    .upload-area input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
-    .upload-area i { font-size:2.2rem; color:#ccc; display:block; margin-bottom:8px; }
-    .upload-area p { margin:0; font-size:.82rem; color:#aaa; line-height:1.5; }
-    .img-preview-box { width:100%; height:150px; object-fit:cover; border-radius:12px;
-      border:2px solid #e0e6ef; display:none; margin-top:10px; }
-    .img-preview-box.show { display:block; }
-    .upload-status { font-size:.75rem; margin-top:6px; font-weight:600; min-height:18px; }
+    /* ── TABS ── */
+    .tab-bar {
+      display: flex; gap: 4px;
+      background: #fff; border-radius: 40px; padding: 4px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.07);
+    }
+    .tab-bar button {
+      border: none; background: transparent; border-radius: 30px;
+      padding: 8px 22px; font-weight: 700; font-size: .82rem;
+      color: #777; transition: background .2s, color .2s, transform .15s;
+      font-family: inherit; cursor: pointer;
+    }
+    .tab-bar button.active { background: var(--green-a); color: #fff; }
+    .tab-bar button:not(.active):hover { background: var(--green-soft); color: var(--green); }
+    .tab-bar button:active { transform: scale(.94); }
 
-    .menu-item-card { background:#fff; border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,.06);
-      padding:14px; display:flex; gap:12px; align-items:center; margin-bottom:10px; }
-    .menu-item-card img { width:62px; height:62px; object-fit:cover; border-radius:10px; flex-shrink:0; background:#eee; }
-    .item-info { flex-grow:1; min-width:0; }
-    .item-info h6 { font-size:.85rem; font-weight:700; margin:0 0 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .item-info small { font-size:.72rem; color:#888; }
-    .item-price { font-size:.82rem; font-weight:700; color:var(--green-a); }
-    .btn-del { background:#fee2e2; border:none; border-radius:10px; width:36px; height:36px;
-      display:flex; align-items:center; justify-content:center; color:var(--red); cursor:pointer; transition:.2s; flex-shrink:0; }
-    .btn-del:hover { background:var(--red); color:#fff; }
-    .btn-best { background:#fef3c7; border:none; border-radius:10px; width:36px; height:36px;
-      display:flex; align-items:center; justify-content:center; color:#d97706; cursor:pointer; transition:.2s; flex-shrink:0; }
-    .btn-best.off { background:#f3f4f6; color:#ccc; }
-    .btn-best:hover { background:#fde68a; }
+    /* ── FORM CARD ── */
+    .form-card {
+      background: #fff; border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.07); padding: 24px;
+      animation: slideUp .4s cubic-bezier(.4,0,.2,1) both;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .form-label { font-weight: 700; font-size: .78rem; color: #555; margin-bottom: 4px; display: block; }
+    .form-control, .form-select {
+      border-radius: 12px; border: 1.5px solid #e0e6ef;
+      padding: 10px 14px; font-family: inherit; font-size: .88rem;
+      transition: border-color .2s, box-shadow .2s; width: 100%;
+    }
+    .form-control:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px var(--green-soft);
+      outline: none;
+    }
 
-    .empty-state { text-align:center; color:#aaa; padding:40px 20px; }
-    .empty-state i { font-size:3rem; opacity:.2; display:block; margin-bottom:10px; }
-    .badge-best { background:#fee2e2; color:var(--red); font-size:.6rem; font-weight:700; padding:2px 8px; border-radius:20px; }
+    /* ── SUBMIT BUTTON ── */
+    .btn-add {
+      background: var(--green-a); color: #fff; border: none;
+      border-radius: 14px; padding: 13px; font-weight: 700;
+      font-size: .9rem; width: 100%;
+      transition: transform .15s, box-shadow .15s, background .2s;
+      font-family: inherit; cursor: pointer;
+    }
+    .btn-add:hover { box-shadow: 0 6px 20px rgba(33,167,42,.35); transform: translateY(-1px); }
+    .btn-add:active { transform: scale(.97); }
+    .btn-add:disabled { opacity: .5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 
-    #login-screen { position:fixed; inset:0; background:var(--bg); z-index:999; display:flex; align-items:center; justify-content:center; }
-    .login-box { background:#fff; border-radius:24px; padding:36px 28px; width:100%; max-width:360px; box-shadow:0 10px 40px rgba(0,0,0,.12); text-align:center; }
-    .login-box h2 { color:var(--green-a); font-weight:800; margin-bottom:4px; }
+    /* ── TOGGLE SWITCH ── */
+    .toggle-wrap { display: flex; align-items: center; gap: 10px; }
+    .toggle-switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background: #d0d8e4; border-radius: 26px;
+      transition: background .3s;
+    }
+    .toggle-slider:before {
+      position: absolute; content: ""; height: 20px; width: 20px;
+      left: 3px; bottom: 3px; background: #fff; border-radius: 50%;
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+      box-shadow: 0 2px 6px rgba(0,0,0,.15);
+    }
+    input:checked + .toggle-slider { background: var(--green-a); }
+    input:checked + .toggle-slider:before { transform: translateX(20px); }
 
-    .sync-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:5px; }
-    @media(max-width:576px){ .topbar { padding:12px 16px; } .form-card { padding:16px; } }
+    /* ── UPLOAD ── */
+    .upload-area {
+      border: 2px dashed #d0d8e4; border-radius: 14px; padding: 22px;
+      text-align: center; cursor: pointer; transition: border-color .2s, background .2s;
+      background: #fafbfc; position: relative; overflow: hidden;
+    }
+    .upload-area:hover { border-color: var(--green); background: var(--green-soft); }
+    .upload-area input[type=file] {
+      position: absolute; inset: 0; opacity: 0;
+      cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-area i { font-size: 2.2rem; color: #ccc; display: block; margin-bottom: 8px; transition: transform .3s, color .2s; }
+    .upload-area:hover i { transform: translateY(-4px); color: var(--green); }
+    .upload-area p { margin: 0; font-size: .82rem; color: #aaa; line-height: 1.5; }
+    .img-preview-box {
+      width: 100%; height: 150px; object-fit: cover; border-radius: 12px;
+      border: 2px solid #e0e6ef; display: none; margin-top: 10px;
+      transition: opacity .3s;
+    }
+    .img-preview-box.show { display: block; animation: fadeImg .3s ease; }
+    @keyframes fadeImg {
+      from { opacity: 0; transform: scale(.97); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .upload-status { font-size: .75rem; margin-top: 6px; font-weight: 600; min-height: 18px; }
+
+    /* ── MENU LIST ITEM ── */
+    .menu-item-card {
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.06);
+      padding: 14px; display: flex; gap: 12px; align-items: center;
+      margin-bottom: 10px;
+      transition: transform .2s, box-shadow .2s;
+      animation: itemIn .3s cubic-bezier(.4,0,.2,1) both;
+    }
+    .menu-item-card:hover { transform: translateX(3px); box-shadow: 0 4px 18px rgba(0,0,0,.1); }
+    @keyframes itemIn {
+      from { opacity: 0; transform: translateX(-12px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .menu-item-card img {
+      width: 62px; height: 62px; object-fit: cover;
+      border-radius: 10px; flex-shrink: 0; background: #eee;
+    }
+    .item-info { flex-grow: 1; min-width: 0; }
+    .item-info h6 { font-size: .85rem; font-weight: 700; margin: 0 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-info small { font-size: .72rem; color: #888; }
+    .item-price { font-size: .82rem; font-weight: 700; color: var(--green-a); }
+
+    .btn-del {
+      background: #fee2e2; border: none; border-radius: 10px;
+      width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+      color: var(--red); cursor: pointer; transition: background .2s, transform .15s; flex-shrink: 0;
+    }
+    .btn-del:hover { background: var(--red); color: #fff; }
+    .btn-del:active { transform: scale(.88); }
+
+    .btn-best {
+      background: #fef3c7; border: none; border-radius: 10px;
+      width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+      color: #d97706; cursor: pointer; transition: background .2s, transform .15s; flex-shrink: 0;
+    }
+    .btn-best.off { background: #f3f4f6; color: #ccc; }
+    .btn-best:hover { background: #fde68a; transform: scale(1.1); }
+    .btn-best:active { transform: scale(.88); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state { text-align: center; color: #aaa; padding: 40px 20px; animation: slideUp .3s ease; }
+    .empty-state i { font-size: 3rem; opacity: .2; display: block; margin-bottom: 10px; }
+
+    .badge-best {
+      background: #fee2e2; color: var(--red);
+      font-size: .6rem; font-weight: 700; padding: 2px 8px; border-radius: 20px;
+    }
+
+    /* ── SYNC DOT ── */
+    .sync-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      display: inline-block; margin-right: 5px;
+      transition: background .4s;
+    }
+    .sync-dot.pulse { animation: syncPulse .8s ease infinite alternate; }
+    @keyframes syncPulse {
+      from { opacity: 1; }
+      to   { opacity: .4; }
+    }
+
+    @media(max-width: 576px) {
+      .topbar { padding: 12px 16px; }
+      .form-card { padding: 16px; }
+    }
   </style>
 </head>
 <body>
@@ -86,13 +234,12 @@
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <div style="font-size:3rem;margin-bottom:8px">🔐</div>
+    <span class="login-icon">🔐</span>
     <h2>KantinGo</h2>
     <p class="text-muted mb-4" style="font-size:.85rem">Admin Panel — Masuk untuk melanjutkan</p>
     <input type="password" id="pass-input" class="form-control mb-3" placeholder="Password Admin"
-      onkeyup="if(event.key==='Enter')doLogin()">
+      onkeyup="if(event.key==='Enter')doLogin()" style="text-align:center;letter-spacing:3px">
     <button class="btn-add" onclick="doLogin()"><i class="bi bi-unlock me-2"></i>Masuk</button>
-    
   </div>
 </div>
 
@@ -101,7 +248,8 @@
   <div class="brand"><i class="bi bi-shop-window"></i> KantinGo <span class="admin-badge ms-1">ADMIN</span></div>
   <div class="d-flex align-items-center gap-2">
     <span id="sync-indicator" class="text-muted" style="font-size:.72rem"></span>
-    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="logout()">
+    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="logout()"
+      style="transition:.15s" title="Keluar">
       <i class="bi bi-box-arrow-right"></i>
     </button>
   </div>
@@ -109,8 +257,8 @@
 
 <div class="container py-4" style="max-width:680px">
 
-  <!-- Tab -->
-  <div class="d-flex justify-content-center mb-4">
+  <!-- TABS -->
+  <div class="d-flex justify-content-center mb-4" style="animation: slideUp .35s ease both">
     <div class="tab-bar">
       <button class="active" id="tab-makanan" onclick="switchTab('makanan')">
         <i class="bi bi-egg-fried me-1"></i>Makanan
@@ -121,8 +269,8 @@
     </div>
   </div>
 
-  <!-- Form Tambah -->
-  <div class="form-card mb-4">
+  <!-- FORM TAMBAH -->
+  <div class="form-card mb-4" style="animation-delay:.05s">
     <h6 class="fw-bold mb-3 t-main">
       <i class="bi bi-plus-circle me-2"></i>Tambah <span id="form-type-label">Makanan</span>
     </h6>
@@ -172,8 +320,8 @@
     </div>
   </div>
 
-  <!-- Daftar Menu -->
-  <div class="d-flex align-items-center justify-content-between mb-3">
+  <!-- DAFTAR MENU -->
+  <div class="d-flex align-items-center justify-content-between mb-3" style="animation: slideUp .4s .1s both">
     <h6 class="fw-bold m-0 t-main">
       <i class="bi bi-list-ul me-2"></i>Daftar <span id="list-type-label">Makanan</span>
     </h6>
@@ -188,37 +336,50 @@
 // ============================================================
 // CONFIG
 // ============================================================
-const IMGBB_API_KEY   = "181c37c295a5af7fbc3640042edea412";
+const IMGBB_API_KEY     = "181c37c295a5af7fbc3640042edea412";
 const CLOUDINARY_CLOUD  = "deshlk5ef";
 const CLOUDINARY_PRESET = "kantingo_upload";
-const JSONBIN_BIN_ID  = "69f9485836566621a82699c4";
-const JSONBIN_API_KEY = "$2a$10$yeNFeh35hEUuTVcEY4znkuLrYqTqLCZMpioDuaGPnZD0pGJJgAgLK";
-const ADMIN_PASSWORD  = "ellao";
+const JSONBIN_BIN_ID    = "69f9485836566621a82699c4";
+const JSONBIN_API_KEY   = "$2a$10$yeNFeh35hEUuTVcEY4znkuLrYqTqLCZMpioDuaGPnZD0pGJJgAgLK";
+const ADMIN_PASSWORD    = "ellao";
 // ============================================================
 
 const BIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 const $ = id => document.getElementById(id);
 
-let menuData = { makanan: [], minuman: [] };
-let activeTab = "makanan";
+let menuData      = { makanan: [], minuman: [] };
+let activeTab     = "makanan";
 let uploadedImgUrl = "";
 
-// ---- LOGIN ----
+/* ─── LOGIN ─── */
 const doLogin = () => {
   if ($("pass-input").value === ADMIN_PASSWORD) {
-    $("login-screen").style.display = "none";
+    const screen = $("login-screen");
+    screen.style.transition = "opacity .4s, transform .4s";
+    screen.style.opacity = "0";
+    screen.style.transform = "scale(1.04)";
+    setTimeout(() => { screen.style.display = "none"; }, 420);
     localStorage.setItem("kg_admin", "1");
     init();
   } else {
     $("pass-input").style.borderColor = "#e74c3c";
+    $("pass-input").style.animation   = "shake .4s ease";
     $("pass-input").value = "";
     $("pass-input").placeholder = "❌ Password salah!";
     setTimeout(() => {
       $("pass-input").style.borderColor = "";
+      $("pass-input").style.animation   = "";
       $("pass-input").placeholder = "Password Admin";
     }, 1800);
   }
 };
+
+// Shake keyframe (inject once)
+const shakeStyle = document.createElement("style");
+shakeStyle.textContent = `@keyframes shake {
+  0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)}
+  60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }`;
+document.head.appendChild(shakeStyle);
 
 const logout = () => { localStorage.removeItem("kg_admin"); location.reload(); };
 
@@ -229,63 +390,63 @@ if (localStorage.getItem("kg_admin") === "1") {
 
 function init() {
   loadMenu();
-  // Reload data otomatis saat tab aktif kembali (fix: daftar hilang saat pindah tab)
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") {
-      loadMenu();
-    }
+    if (document.visibilityState === "visible") loadMenu();
   });
 }
 
-// ---- JSONBIN ----
+/* ─── JSONBIN ─── */
 async function loadMenu() {
-  setSyncStatus("⏳", "Memuat data...");
+  setSyncStatus("loading", "Memuat...");
   try {
     const res = await fetch(`${BIN_URL}/latest`, {
-      headers: { "X-Master-Key": JSONBIN_API_KEY }
+      headers: { "X-Master-Key": JSONBIN_API_KEY },
+      cache: "no-store"
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
     const data = json.record;
     menuData.makanan = Array.isArray(data.makanan) ? data.makanan : [];
     menuData.minuman = Array.isArray(data.minuman) ? data.minuman : [];
-    setSyncStatus("🟢", "Data tersinkron");
+    setSyncStatus("ok", "Tersinkron");
   } catch (e) {
     console.error("Load gagal:", e);
-    setSyncStatus("🔴", "Gagal load — cek koneksi");
+    setSyncStatus("error", "Gagal load");
   }
   renderList();
 }
 
 async function saveMenu() {
-  setSyncStatus("💾", "Menyimpan...");
+  setSyncStatus("loading", "Menyimpan...");
   try {
-    const body = JSON.stringify({ makanan: menuData.makanan, minuman: menuData.minuman });
     const res = await fetch(BIN_URL, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         "X-Master-Key": JSONBIN_API_KEY
       },
-      body
+      body: JSON.stringify({ makanan: menuData.makanan, minuman: menuData.minuman })
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    await res.json(); // pastikan response terbaca
-    setSyncStatus("🟢", "Tersimpan!");
+    await res.json();
+    setSyncStatus("ok", "Tersimpan ✓");
     return true;
   } catch (e) {
     console.error("Save gagal:", e);
-    setSyncStatus("🔴", "Gagal simpan!");
+    setSyncStatus("error", "Gagal simpan!");
     Swal.fire({ icon:"error", title:"Gagal Simpan!", text:`Error: ${e.message}`, confirmButtonColor:"#21a72a" });
     return false;
   }
 }
 
-const setSyncStatus = (dot, text) => {
-  $("sync-indicator").innerHTML = `<span class="sync-dot" style="background:${dot==='🟢'?'#21a72a':dot==='🔴'?'#e74c3c':'#f59e0b'}"></span>${text}`;
+const setSyncStatus = (state, text) => {
+  const colors = { ok:"#21a72a", error:"#e74c3c", loading:"#f59e0b" };
+  const pulse  = state === "loading" ? " pulse" : "";
+  $("sync-indicator").innerHTML =
+    `<span class="sync-dot${pulse}" style="background:${colors[state]}"></span>${text}`;
 };
 
-// ---- TAB ----
+/* ─── TABS ─── */
 const switchTab = t => {
   activeTab = t;
   $("tab-makanan").classList.toggle("active", t === "makanan");
@@ -295,8 +456,7 @@ const switchTab = t => {
   renderList();
 };
 
-// ---- UPLOAD GAMBAR ----
-// Baca file jadi base64 (Promise)
+/* ─── UPLOAD GAMBAR ─── */
 const readFileAsBase64 = file => new Promise((resolve, reject) => {
   const r = new FileReader();
   r.onload = e => resolve(e.target.result);
@@ -313,36 +473,36 @@ const handleUpload = async input => {
     return;
   }
 
-  // Reset URL dulu
   uploadedImgUrl = "";
   $("f-img").value = "";
 
-  // Preview lokal langsung (pakai base64)
   const base64 = await readFileAsBase64(file);
   $("img-preview-box").src = base64;
   $("img-preview-box").classList.add("show");
-  $("upload-area").querySelector("p").innerHTML = `<strong style="color:#333">${file.name}</strong><br><span style="font-size:.7rem;color:#aaa">${(file.size/1024).toFixed(0)} KB</span>`;
+  $("upload-area").querySelector("p").innerHTML =
+    `<strong style="color:#333">${file.name}</strong><br>
+     <span style="font-size:.7rem;color:#aaa">${(file.size/1024).toFixed(0)} KB</span>`;
 
-  setUploadStatus("⏳ Mengupload ke ImgBB...", "text-warning");
+  setUploadStatus("⏳ Mengupload gambar...", "text-warning");
   $("btn-submit").disabled = true;
 
   try {
-    const form = new FormData();
-    form.append("image", file);
-    // Coba Cloudinary dulu (tidak blokir hotlink, bisa dilihat semua device)
+    // Coba Cloudinary dulu
     try {
       const cForm = new FormData();
-      cForm.append("file", form.get("image"));
+      cForm.append("file", file);
       cForm.append("upload_preset", CLOUDINARY_PRESET);
-      const cRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+      const cRes  = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
         method: "POST", body: cForm
       });
       const cJson = await cRes.json();
       if (!cJson.secure_url) throw new Error("No URL");
       uploadedImgUrl = cJson.secure_url;
-    } catch(ce) {
+    } catch {
       // Fallback ImgBB
-      const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+      const form = new FormData();
+      form.append("image", file);
+      const res  = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
         method: "POST", body: form
       });
       const json = await res.json();
@@ -352,8 +512,7 @@ const handleUpload = async input => {
     $("f-img").value = uploadedImgUrl;
     setUploadStatus("✅ Gambar berhasil diupload!", "text-success");
   } catch (e) {
-    console.warn("ImgBB gagal:", e);
-    // Fallback base64 hanya jika file kecil (< 100KB) — file besar akan gagalkan JSONBin
+    console.warn("Upload gagal:", e);
     if (file.size < 100 * 1024) {
       uploadedImgUrl = base64;
       $("f-img").value = base64;
@@ -362,7 +521,7 @@ const handleUpload = async input => {
       uploadedImgUrl = "";
       $("f-img").value = "";
       $("img-preview-box").classList.remove("show");
-      setUploadStatus("❌ Upload ke server gagal. Coba lagi atau pakai gambar lebih kecil.", "text-danger");
+      setUploadStatus("❌ Upload gagal. Pakai gambar lebih kecil.", "text-danger");
     }
   } finally {
     $("btn-submit").disabled = false;
@@ -375,18 +534,16 @@ const setUploadStatus = (msg, cls) => {
   el.className = `upload-status ${cls}`;
 };
 
-// ---- TAMBAH MENU ----
+/* ─── TAMBAH MENU ─── */
 const tambahMenu = async () => {
-  const nama = $("f-nama").value.trim();
+  const nama  = $("f-nama").value.trim();
   const harga = parseInt($("f-harga").value);
-  if (!nama) { highlight("f-nama", "Nama wajib diisi!"); return; }
-  if (!harga || harga <= 0) { highlight("f-harga", "Harga tidak valid!"); return; }
+  if (!nama)               { highlight("f-nama",  "Nama wajib diisi!"); return; }
+  if (!harga || harga <= 0){ highlight("f-harga", "Harga tidak valid!"); return; }
 
-  // Cek apakah gambar masih dalam proses upload
-  const statusEl = $("upload-status");
-  if (statusEl.textContent.includes("Mengupload")) {
-    Swal.mixin({toast:true, position:"top", showConfirmButton:false, timer:2000})
-      .fire({icon:"warning", title:"⏳ Tunggu gambar selesai diupload!"});
+  if ($("upload-status").textContent.includes("Mengupload")) {
+    Swal.mixin({ toast:true, position:"top", showConfirmButton:false, timer:2000 })
+      .fire({ icon:"warning", title:"⏳ Tunggu gambar selesai diupload!" });
     return;
   }
 
@@ -397,10 +554,10 @@ const tambahMenu = async () => {
     id: Date.now(),
     nama,
     harga,
-    desc: $("f-desc").value.trim() || "-",
-    img: uploadedImgUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400",
+    desc:     $("f-desc").value.trim() || "-",
+    img:      uploadedImgUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400",
     kategori: $("f-kategori").value.trim() || "Umum",
-    best: $("f-best").checked
+    best:     $("f-best").checked
   };
 
   menuData[activeTab].push(newItem);
@@ -408,7 +565,6 @@ const tambahMenu = async () => {
 
   const ok = await saveMenu();
   if (!ok) {
-    // Rollback jika gagal simpan
     menuData[activeTab].pop();
     renderList();
   } else {
@@ -421,7 +577,7 @@ const tambahMenu = async () => {
   $("btn-submit").innerHTML = '<i class="bi bi-plus-lg me-2"></i>Tambah ke Menu';
 };
 
-// ---- HAPUS & TOGGLE BEST ----
+/* ─── HAPUS & TOGGLE BEST ─── */
 const hapusMenu = async (type, id) => {
   const item = menuData[type].find(i => i.id === id);
   const result = await Swal.fire({
@@ -447,17 +603,21 @@ const toggleBest = async (type, id) => {
   await saveMenu();
 };
 
-// ---- RENDER LIST ----
+/* ─── RENDER LIST ─── */
 const renderList = () => {
   const items = menuData[activeTab] || [];
   $("item-count").textContent = `${items.length} item`;
   if (!items.length) {
-    $("menu-list").innerHTML = `<div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada menu.<br>Tambahkan lewat form di atas.</p></div>`;
+    $("menu-list").innerHTML = `
+      <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <p>Belum ada menu.<br>Tambahkan lewat form di atas.</p>
+      </div>`;
     return;
   }
-  $("menu-list").innerHTML = [...items].reverse().map(i => `
-    <div class="menu-item-card">
-      <img src="${i.img||''}" alt="${i.nama}"
+  $("menu-list").innerHTML = [...items].reverse().map((i, idx) => `
+    <div class="menu-item-card" style="animation-delay:${Math.min(idx * .04, .25)}s">
+      <img src="${i.img || ''}" alt="${i.nama}" loading="lazy"
         onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200'">
       <div class="item-info">
         <div class="d-flex align-items-center gap-1 mb-1">
@@ -468,17 +628,19 @@ const renderList = () => {
         <span class="item-price">Rp ${Number(i.harga).toLocaleString("id-ID")}</span>
       </div>
       <div class="d-flex flex-column gap-2">
-        <button class="btn-best ${i.best?'':'off'}" title="Toggle Best" onclick="toggleBest('${activeTab}',${i.id})">
+        <button class="btn-best ${i.best ? '' : 'off'}" title="Toggle Best"
+          onclick="toggleBest('${activeTab}',${i.id})">
           <i class="bi bi-fire"></i>
         </button>
-        <button class="btn-del" title="Hapus" onclick="hapusMenu('${activeTab}',${i.id})">
+        <button class="btn-del" title="Hapus"
+          onclick="hapusMenu('${activeTab}',${i.id})">
           <i class="bi bi-trash"></i>
         </button>
       </div>
     </div>`).join('');
 };
 
-// ---- RESET FORM ----
+/* ─── RESET FORM ─── */
 const resetForm = () => {
   ["f-nama","f-harga","f-desc","f-kategori"].forEach(id => $(id).value = "");
   $("f-img").value = "";
@@ -493,9 +655,13 @@ const resetForm = () => {
 const highlight = (id, msg) => {
   const el = $(id);
   el.style.borderColor = "#e74c3c";
+  el.style.animation = "shake .4s ease";
   el.placeholder = msg;
   el.focus();
-  setTimeout(() => { el.style.borderColor = ""; }, 2000);
+  setTimeout(() => {
+    el.style.borderColor = "";
+    el.style.animation = "";
+  }, 2000);
 };
 </script>
 </body>
