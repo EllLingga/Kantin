@@ -1,358 +1,428 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KantinGo - Katalog & Pesanan</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Pacifico&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     :root {
       --green: #21a72a;
-      --green-a: rgba(33,167,42,.85);
-      --green-soft: rgba(33,167,42,.1);
-      --green-mid: rgba(33,167,42,.2);
-      --bg: #f0f4f8;
-      --card-shadow: 0 4px 20px rgba(0,0,0,.07);
+      --green-a: rgba(33,167,42,.9);
+      --green-soft: rgba(33,167,42,.08);
+      --green-mid: rgba(33,167,42,.18);
+      --bg: #f0f7f1;
+      --card-bg: #ffffff;
+      --shadow: 0 4px 20px rgba(33,167,42,.08);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      font-family: 'Nunito', sans-serif;
+      overflow-x: hidden;
+    }
 
-    /* ── SCROLLBAR TIPIS ── */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--green-mid); border-radius: 99px; }
+    /* PARTICLES BG */
+    #particles-bg {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+    }
+    .particle {
+      position: absolute; border-radius: 50%;
+      background: var(--green-mid);
+      animation: floatParticle linear infinite;
+      opacity: 0;
+    }
+    @keyframes floatParticle {
+      0% { transform: translateY(110vh) scale(0); opacity: 0; }
+      10% { opacity: .4; }
+      90% { opacity: .2; }
+      100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+    }
 
-    .t-main { color: var(--green-a) !important; }
-    .b-main { background-color: var(--green-a) !important; }
-
-    /* ── NAVBAR ── */
+    /* NAVBAR */
     .top-navbar {
-      background: rgba(255,255,255,.95);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 1px 0 rgba(0,0,0,.06), 0 4px 20px rgba(0,0,0,.04);
-      transition: box-shadow .3s;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 2px 20px rgba(33,167,42,.1);
+      z-index: 1030;
+      position: sticky; top: 0;
     }
-    .top-nav-link {
-      cursor: pointer; font-weight: 600; font-size: .88rem;
-      transition: color .2s; color: #666; padding: 6px 2px;
-      position: relative;
+    .brand-logo {
+      font-family: 'Pacifico', cursive;
+      color: var(--green-a);
+      font-size: 1.5rem;
+      letter-spacing: .5px;
     }
-    .top-nav-link::after {
-      content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
-      height: 2.5px; background: var(--green-a); border-radius: 99px;
-      transform: scaleX(0); transition: transform .25s cubic-bezier(.4,0,.2,1);
+    .nav-link-custom {
+      font-weight: 700; font-size: .88rem; color: #555;
+      padding: 6px 14px; border-radius: 20px;
+      transition: all .25s; cursor: pointer;
     }
-    .top-nav-link.active { color: var(--green-a) !important; }
-    .top-nav-link.active::after { transform: scaleX(1); }
+    .nav-link-custom:hover { background: var(--green-soft); color: var(--green); }
+    .nav-link-custom.active {
+      background: var(--green-a); color: #fff !important;
+    }
 
-    /* ── HERO ── */
+    /* PAGES */
+    .page { animation: pageIn .35s cubic-bezier(.25,.46,.45,.94); }
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(16px) scale(.98); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* HERO  */
     .hero {
-      height: 240px; background: center/cover no-repeat; position: relative;
-      border-radius: 0; overflow: hidden;
+      height: 260px; background: center/cover; position: relative;
+      border-radius: 20px; overflow: hidden;
+      box-shadow: 0 8px 40px rgba(33,167,42,.18);
     }
     .hero-overlay {
       position: absolute; inset: 0;
-      background: linear-gradient(to bottom, rgba(0,0,0,.1), rgba(0,0,0,.68));
-      display: flex; flex-direction: column; justify-content: center;
-      align-items: center; color: #fff; text-align: center;
+      background: linear-gradient(135deg, rgba(0,0,0,.15) 0%, rgba(33,167,42,.55) 100%);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      color: #fff; text-align: center;
     }
-    .hero-overlay h1, .hero-overlay h2 {
-      animation: heroFadeUp .7s cubic-bezier(.4,0,.2,1) both;
+    .hero-title {
+      font-family: 'Pacifico', cursive;
+      font-size: 3rem;
+      text-shadow: 0 4px 20px rgba(0,0,0,.3);
+      animation: heroTitleIn .8s ease both;
     }
-    .hero-overlay p {
-      animation: heroFadeUp .7s cubic-bezier(.4,0,.2,1) .15s both;
+    .hero-sub {
+      letter-spacing: 3px; font-size: 12px;
+      text-transform: uppercase; opacity: .9; margin-top: 8px;
+      animation: heroSubIn 1s ease .2s both;
     }
-    @keyframes heroFadeUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
+    @keyframes heroTitleIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: none; }
     }
-    @media(min-width: 768px) {
-      .hero { border-radius: 1rem; margin-top: 1.5rem; height: 280px; }
+    @keyframes heroSubIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: .9; transform: none; }
     }
 
-    /* ── MENU CARD ── */
+    /* CARDS */
     .menu-card {
-      border: none; border-radius: 14px;
-      transition: transform .22s cubic-bezier(.4,0,.2,1), box-shadow .22s;
-      will-change: transform;
-      animation: cardIn .35s cubic-bezier(.4,0,.2,1) both;
+      border: none; border-radius: 18px; overflow: hidden;
+      transition: transform .3s ease, box-shadow .3s ease;
+      background: var(--card-bg);
+      animation: cardIn .4s ease both;
     }
-    @media(min-width: 768px) {
-      .menu-card:hover {
-        transform: translateY(-5px) scale(1.01);
-        box-shadow: 0 16px 32px rgba(0,0,0,.12) !important;
-      }
+    .menu-card:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 0 16px 40px rgba(33,167,42,.15) !important;
     }
     @keyframes cardIn {
-      from { opacity: 0; transform: translateY(14px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .menu-card-img {
+      width: 88px; height: 88px; object-fit: cover;
+      border-radius: 14px; flex-shrink: 0;
+      background: linear-gradient(135deg,#e8f5e9,#c8e6c9);
+    }
+    .add-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--green-a); border: none; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s; cursor: pointer; font-size: 18px;
+      flex-shrink: 0;
+    }
+    .add-btn:hover { transform: scale(1.15) rotate(90deg); background: var(--green); }
+    .add-btn:active { transform: scale(.9); }
+
+    /* SECTION CARD */
+    .section-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 24px;
     }
 
-    /* Stagger kartu menu */
-    .col-anim:nth-child(1) .menu-card { animation-delay: .04s; }
-    .col-anim:nth-child(2) .menu-card { animation-delay: .08s; }
-    .col-anim:nth-child(3) .menu-card { animation-delay: .12s; }
-    .col-anim:nth-child(4) .menu-card { animation-delay: .16s; }
-    .col-anim:nth-child(5) .menu-card { animation-delay: .20s; }
-    .col-anim:nth-child(6) .menu-card { animation-delay: .24s; }
-    .col-anim:nth-child(n+7) .menu-card { animation-delay: .28s; }
-
-    /* ── ADD BUTTON ── */
-    .btn-add-cart {
-      transition: transform .15s, background .15s, box-shadow .15s;
+    /* info card */
+    .info-icon-card {
+      border-radius: 16px; padding: 16px 12px;
+      text-align: center; transition: transform .25s;
+      animation: popIn .5s ease both;
     }
-    .btn-add-cart:active { transform: scale(.86); }
-    .btn-add-cart:hover { box-shadow: 0 4px 12px rgba(33,167,42,.4); }
-
-    /* ── BOTTOM NAV ── */
-    .bot-nav {
-      background: rgba(255,255,255,.97);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-top: 1px solid #e8edf2;
+    .info-icon-card:hover { transform: translateY(-4px); }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(.8); }
+      to   { opacity: 1; transform: none; }
     }
-    .nav-item-btn {
-      transition: color .2s, transform .2s;
-      cursor: pointer; color: #9aa5b4; font-size: 10px;
-      padding: 4px 0;
-    }
-    .nav-item-btn.active {
-      color: var(--green-a) !important;
-      font-weight: 700;
-      transform: translateY(-3px);
-    }
-    .nav-item-btn i { transition: transform .2s; }
-    .nav-item-btn.active i { transform: scale(1.15); }
-
-    /* ── FAB CART ── */
-    #fab-cart {
-      transition: transform .2s cubic-bezier(.4,0,.2,1), box-shadow .2s;
-      box-shadow: 0 4px 18px rgba(33,167,42,.35);
-    }
-    #fab-cart:active { transform: scale(.88) !important; }
-    #fab-cart.has-item { animation: fabPulse 1.8s ease-in-out infinite; }
-    @keyframes fabPulse {
-      0%, 100% { box-shadow: 0 4px 18px rgba(33,167,42,.4); }
-      50% { box-shadow: 0 4px 30px rgba(33,167,42,.15), 0 0 0 10px rgba(33,167,42,.08); }
-    }
-    .fab-bounce {
-      animation: fabBounce .4s cubic-bezier(.4,0,.2,1);
-    }
-    @keyframes fabBounce {
-      0%  { transform: scale(1); }
-      40% { transform: scale(1.25); }
-      70% { transform: scale(.9); }
-      100%{ transform: scale(1); }
+    .info-icon {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin: 0 auto 10px;
     }
 
-    /* ── SUB TABS ── */
+    /* SUB TAB */
     .sub-tab {
-      display: inline-flex; gap: 5px;
+      display: inline-flex; gap: 4px;
       background: #fff; border-radius: 40px; padding: 4px;
-      box-shadow: 0 2px 10px rgba(0,0,0,.07);
+      box-shadow: 0 2px 12px rgba(0,0,0,.07);
     }
     .sub-tab button {
       border: none; background: transparent; border-radius: 30px;
-      padding: 5px 14px; font-weight: 600; font-size: .8rem;
-      color: #777; transition: background .2s, color .2s, transform .15s;
-      font-family: inherit; cursor: pointer;
+      padding: 6px 16px; font-weight: 700; font-size: .8rem;
+      color: #888; transition: all .2s; font-family: inherit; cursor: pointer;
     }
     .sub-tab button.active { background: var(--green-a); color: #fff; }
-    .sub-tab button:not(.active):hover { background: var(--green-soft); color: var(--green); }
-    .sub-tab button:active { transform: scale(.94); }
 
-    /* ── SEARCH ── */
+    /* SEARCH */
     .search-wrap { position: relative; }
     .search-wrap input {
-      border-radius: 30px; border: none; background: #fff;
-      padding: 10px 18px 10px 42px; font-size: .875rem;
-      box-shadow: 0 2px 10px rgba(0,0,0,.07); width: 100%;
-      outline: none; font-family: inherit;
-      transition: box-shadow .2s;
+      border-radius: 30px; border: 2px solid #e8f5e9;
+      background: #fff; padding: 11px 18px 11px 44px;
+      font-size: .875rem; width: 100%; outline: none;
+      font-family: inherit; transition: border .2s;
+      box-shadow: 0 2px 12px rgba(0,0,0,.06);
     }
-    .search-wrap input:focus {
-      box-shadow: 0 0 0 3px var(--green-soft), 0 2px 10px rgba(0,0,0,.07);
-    }
+    .search-wrap input:focus { border-color: var(--green); }
     .search-wrap .bi-search {
-      position: absolute; left: 15px; top: 50%;
-      transform: translateY(-50%); color: #aaa; transition: color .2s;
-    }
-    .search-wrap input:focus ~ .bi-search { color: var(--green); }
-    /* Posisi ikon harus di depan */
-    .search-wrap { display: flex; flex-direction: row-reverse; align-items: center; }
-    .search-wrap input { flex: 1; }
-    .search-wrap .bi-search { position: absolute; left: 15px; z-index: 1; }
-
-    /* ── PAGE TRANSITION ── */
-    .page { animation: pageIn .28s cubic-bezier(.4,0,.2,1) both; }
-    @keyframes pageIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
+      position: absolute; left: 16px; top: 50%;
+      transform: translateY(-50%); color: #aaa;
     }
 
-    /* ── SKELETON ── */
+    /* BADGES  */
+    .badge-best {
+      background: linear-gradient(135deg,#ff6b6b,#ee0979);
+      color: #fff; font-size: .6rem; padding: 3px 8px;
+      border-radius: 20px; font-weight: 800;
+    }
+
+    /* FAB  */
+    #fab-cart {
+      width: 60px; height: 60px; bottom: 86px; right: 18px;
+      z-index: 1050; font-size: 22px; border: none;
+      transition: transform .25s, box-shadow .25s;
+    }
+    #fab-cart:active { transform: scale(.88) !important; }
+    #fab-cart.has-item {
+      animation: fabPulse 1.8s infinite;
+    }
+    @keyframes fabPulse {
+      0%,100% { box-shadow: 0 4px 20px rgba(33,167,42,.4); }
+      50% { box-shadow: 0 4px 40px rgba(33,167,42,.15), 0 0 0 12px rgba(33,167,42,.08); }
+    }
+
+    /* ntah */
+    .bot-nav { background: rgba(255,255,255,.95); backdrop-filter: blur(14px); border-top: 1px solid #e8f5e9; }
+    .nav-item-btn {
+      cursor: pointer; color: #b0bec5; font-size: 10px;
+      font-weight: 700; transition: all .2s;
+    }
+    .nav-item-btn.active { color: var(--green-a); transform: translateY(-2px); }
+    .nav-item-btn i { display: block; font-size: 1.45rem; margin-bottom: 2px; }
+
+    /* tulang */
     .skeleton {
-      background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
+      background: linear-gradient(90deg,#eaf5eb 25%,#f5fdf5 50%,#eaf5eb 75%);
       background-size: 200% 100%;
-      animation: shimmer 1.4s ease-in-out infinite;
-      border-radius: 12px;
+      animation: shimmer 1.5s infinite; border-radius: 14px;
     }
-    @keyframes shimmer {
-      0%   { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-    .sk-card { height: 96px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .sk-card { height: 100px; }
 
-    /* ── EMPTY STATE ── */
-    .empty-menu { text-align: center; color: #aaa; padding: 50px 20px; animation: pageIn .3s ease; }
+    /* pemvuat card */
+    .team-card {
+      border-radius: 18px; overflow: hidden;
+      transition: transform .3s; animation: cardIn .5s ease both;
+    }
+    .team-card:hover { transform: translateY(-6px); }
+    .team-avatar {
+      width: 76px; height: 76px; border-radius: 50%;
+      object-fit: cover; margin: 0 auto;
+      border: 3px solid var(--green-a);
+      display: block;
+    }
+
+    /* kalo menu kosong */
+    .empty-menu {
+      text-align: center; color: #aaa; padding: 50px 20px;
+    }
     .empty-menu i { font-size: 3.5rem; opacity: .15; display: block; margin-bottom: 12px; }
 
-    /* ── INFO CARD ICONS ── */
-    .info-icon-wrap {
-      transition: transform .2s;
-    }
-    .info-icon-wrap:hover { transform: translateY(-3px); }
-
-    /* ── TEAM CARDS ── */
-    .team-avatar {
-      transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s;
-    }
-    .team-avatar:hover {
-      transform: scale(1.08) translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,.15) !important;
+    /* buka tutup kantin */
+    .status-badge {
+      font-size: .72rem; font-weight: 800; padding: 4px 12px;
+      border-radius: 20px; display: inline-block; margin-top: 4px;
     }
 
-    /* ── BRAND LOGO ── */
-    .brand-logo {
-      transition: transform .2s;
-      display: inline-block;
-    }
-    .brand-logo:hover { transform: scale(1.04); }
-
-    /* ── CART MODAL ── */
-    .modal-content { border-radius: 20px !important; }
-    .cart-item-enter {
-      animation: cartItemIn .25s cubic-bezier(.4,0,.2,1) both;
-    }
-    @keyframes cartItemIn {
-      from { opacity: 0; transform: translateX(-10px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-
-    /* ── BADGE COUNT ── */
-    .badge-count {
-      transition: transform .2s cubic-bezier(.4,0,.2,1);
-    }
-    .badge-count.pop {
-      animation: badgePop .3s cubic-bezier(.4,0,.2,1);
-    }
-    @keyframes badgePop {
-      0%  { transform: scale(1); }
-      50% { transform: scale(1.5); }
-      100%{ transform: scale(1); }
-    }
-
-    /* ── BEST SELLER CARD ── */
+    /* Menu Best */
     .best-card {
-      transition: transform .2s, box-shadow .2s;
+      border-radius: 18px; overflow: hidden; border: none;
+      transition: transform .3s, box-shadow .3s;
+      background: var(--card-bg);
+      animation: cardIn .4s ease both;
     }
     .best-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(0,0,0,.1) !important;
+      transform: translateY(-5px);
+      box-shadow: 0 14px 36px rgba(33,167,42,.13) !important;
+    }
+
+    /* Delay dinggo nampilin card */
+    .stagger-1 { animation-delay: .05s; }
+    .stagger-2 { animation-delay: .1s; }
+    .stagger-3 { animation-delay: .15s; }
+    .stagger-4 { animation-delay: .2s; }
+    .stagger-5 { animation-delay: .25s; }
+    .stagger-6 { animation-delay: .3s; }
+
+    /* wave divider */
+    .wave-divider {
+      overflow: hidden; line-height: 0;
+      transform: rotate(180deg);
+    }
+    .wave-divider svg { display: block; }
+
+    /* item sing di keranjang */
+    .cart-item-row { transition: background .2s; border-radius: 12px; padding: 8px; }
+    .cart-item-row:hover { background: var(--green-soft); }
+    .qty-btn {
+      width: 30px; height: 30px; border-radius: 50%; border: 2px solid #e0e0e0;
+      background: #fff; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s; font-size: 16px; font-weight: 700;
+    }
+    .qty-btn:hover { border-color: var(--green); color: var(--green); }
+
+    /* Ribbon */
+    .ribbon {
+      position: absolute; top: 10px; left: -6px;
+      background: linear-gradient(135deg,#ff6b6b,#ee0979);
+      color: #fff; font-size: .62rem; font-weight: 800;
+      padding: 4px 10px; border-radius: 0 4px 4px 0;
+      letter-spacing: .5px;
+    }
+    .ribbon::before {
+      content: ''; position: absolute; left: 0; bottom: -6px;
+      border: 3px solid #b30000;
+      border-right-color: transparent; border-bottom-color: transparent;
+    }
+
+    /* Mefia */
+    @media (max-width: 767px) {
+      .hero { border-radius: 14px; height: 200px; }
+      .hero-title { font-size: 2.2rem; }
+      .container { padding-left: 12px; padding-right: 12px; }
     }
   </style>
 </head>
 <body>
 
-<!-- NAVBAR DESKTOP -->
-<nav class="top-navbar navbar navbar-expand-md sticky-top d-none d-md-flex py-3">
+<!-- iki bola bola bg -->
+<div id="particles-bg"></div>
+
+<!-- iki Desktop Navbar -->
+<nav class="top-navbar navbar navbar-expand-md py-2 d-none d-md-flex">
   <div class="container">
-    <a class="navbar-brand fw-bold fs-4 t-main brand-logo" href="#" onclick="go('home')">
-      <i class="bi bi-shop-window"></i> KantinGo
-    </a>
-    <ul class="navbar-nav ms-auto gap-3 align-items-center">
-      <li><a class="nav-link top-nav-link active" data-target="home" onclick="go('home')">Beranda</a></li>
-      <li><a class="nav-link top-nav-link" data-target="makanan" onclick="go('makanan')">Makanan</a></li>
-      <li><a class="nav-link top-nav-link" data-target="minuman" onclick="go('minuman')">Minuman</a></li>
+    <span class="brand-logo"><i class="bi bi-shop-window me-1"></i>KantinGo</span>
+    <ul class="navbar-nav ms-auto gap-2 align-items-center">
+      <li><a class="nav-link-custom active" data-target="home" onclick="go('home')">Beranda</a></li>
+      <li><a class="nav-link-custom" data-target="makanan" onclick="go('makanan')">Makanan</a></li>
+      <li><a class="nav-link-custom" data-target="minuman" onclick="go('minuman')">Minuman</a></li>
       <li class="ms-2">
         <button class="btn border-0 position-relative" data-bs-toggle="modal" data-bs-target="#cartModal">
-          <i class="bi bi-cart3 fs-4 t-main"></i>
-          <span id="c-desk" class="badge-count position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">0</span>
+          <i class="bi bi-cart3 fs-4" style="color:var(--green-a)"></i>
+          <span id="c-desk" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size:.65rem">0</span>
         </button>
       </li>
     </ul>
   </div>
 </nav>
 
-<div class="container pb-5 mb-5 mt-0 mt-md-2">
+<!-- mbuh -->
+<div class="container pb-5 mb-5 mt-2 mt-md-3" style="position:relative;z-index:1">
 
-  <!-- HOME PAGE -->
+  <!-- iki HOME PAGE -->
   <div id="p-home" class="page">
-    <div class="hero mb-4" style="background-image:url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200&auto=format&fit=crop')">
+    <div class="hero mb-4" style="background-image:url('HSekul.jpeg')">
       <div class="hero-overlay">
-        <h1 class="fw-bold m-0 display-5">KantinGo</h1>
-        <p class="m-0 mt-2" style="letter-spacing:2px;font-size:13px;text-transform:uppercase;opacity:.85">Kantin SMKN 5 SURAKARTA</p>
+        <h1 class="hero-title">KantinGo</h1>
+        <p class="hero-sub">Kantin SMKN 5 Surakarta</p>
       </div>
     </div>
 
-    <div class="row justify-content-center g-4 mb-4">
-      <div class="col-md-8 col-lg-6">
-        <div class="card shadow-sm border-0 rounded-4 p-2 text-center" style="animation: cardIn .4s .1s both">
-          <div class="card-body">
-            <h5 class="fw-bold mb-3 t-main">Informasi Kantin</h5>
-            <div class="d-flex justify-content-center gap-4 text-muted small">
-              <div class="info-icon-wrap">
-                <i class="bi bi-geo-alt fs-4 d-block mb-1 text-danger"></i>Lt. Dasar
-              </div>
-              <div class="info-icon-wrap">
-                <i class="bi bi-clock fs-4 d-block mb-1 text-warning"></i>07:00–17:00
-                <span id="k-status" class="badge rounded-pill mt-1 d-block"></span>
-              </div>
-              <div class="info-icon-wrap">
-                <i class="bi bi-info-circle fs-4 d-block mb-1 text-info"></i>Info Harga
-              </div>
-            </div>
+    <!-- bagian Info Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-4">
+        <div class="info-icon-card section-card stagger-1">
+          <div class="info-icon mx-auto mb-2" style="background:#fff3f3">
+            <i class="bi bi-geo-alt-fill text-danger fs-4"></i>
           </div>
+          <div class="fw-700 text-center" style="font-size:.8rem;color:#555">Lt. Dasar</div>
+          <div class="text-center text-muted" style="font-size:.72rem">Gedung A</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="info-icon-card section-card stagger-2" style="text-align:center">
+          <div class="info-icon mx-auto mb-2" style="background:#fffbf0">
+            <i class="bi bi-clock-fill text-warning fs-4"></i>
+          </div>
+          <div class="fw-700 text-center" style="font-size:.8rem;color:#555">07:00 – 17:00</div>
+          <span id="k-status" class="status-badge"></span>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="info-icon-card section-card stagger-3">
+          <div class="info-icon mx-auto mb-2" style="background:#f0f9ff">
+            <i class="bi bi-tags-fill text-info fs-4"></i>
+          </div>
+          <div class="fw-700 text-center" style="font-size:.8rem;color:#555">Harga</div>
+          <div class="text-center text-muted" style="font-size:.72rem">Terjangkau</div>
         </div>
       </div>
     </div>
 
-    <div class="card shadow-sm border-0 rounded-4 p-4 mb-4" style="animation: cardIn .4s .18s both">
+    <!-- dinggo Best Seller -->
+    <div class="section-card mb-4">
       <div class="d-flex align-items-center justify-content-between mb-3">
-        <h5 class="fw-bold m-0 t-main"><i class="bi bi-fire me-2 text-danger"></i>Menu Best Seller</h5>
-        <button class="btn btn-sm rounded-pill px-3 b-main text-white fw-bold" onclick="go('makanan')" style="transition:.15s">Lihat Semua</button>
+        <h5 class="fw-800 m-0" style="color:var(--green-a)">
+          <i class="bi bi-fire text-danger me-2"></i>Best Seller
+        </h5>
+        <button class="btn btn-sm rounded-pill px-3 fw-700 text-white" style="background:var(--green-a)" onclick="go('makanan')">
+          Lihat Semua
+        </button>
       </div>
-      <div id="best-preview" class="row g-3">
+      <div class="row g-3" id="best-preview">
         <div class="col-12"><div class="skeleton sk-card"></div></div>
       </div>
     </div>
 
-    <div class="card shadow-sm border-0 rounded-4 p-4 text-center" style="animation: cardIn .4s .26s both">
-      <h5 class="fw-bold mb-4 t-main">Tim Pengembang</h5>
-      <div class="row row-cols-1 row-cols-md-3 g-4" id="team-list"></div>
+    <!-- Tim Pengembang iki -->
+    <div class="section-card">
+      <h5 class="fw-800 mb-4 text-center" style="color:var(--green-a)">
+        <i class="bi bi-people-fill me-2"></i>Tim Pengembang
+      </h5>
+      <div class="row g-3 justify-content-center" id="team-list"></div>
     </div>
   </div>
 
-  <!-- MAKANAN PAGE -->
+  <!-- MAKANAN PAGE iki -->
   <div id="p-makanan" class="page d-none">
-    <div class="hero mb-4" style="background-image:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1200&auto=format&fit=crop')">
-      <div class="hero-overlay"><h2 class="fw-bold m-0">Menu Makanan</h2></div>
+    <div class="hero mb-4" style="background-image:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1200')">
+      <div class="hero-overlay">
+        <h2 class="fw-800" style="font-size:2rem;font-family:'Pacifico',cursive">Menu Makanan</h2>
+      </div>
     </div>
-    <div class="d-flex align-items-center justify-content-between mb-3 px-1 flex-wrap gap-2">
-      <span id="count-makanan" class="text-muted" style="font-size:.82rem"></span>
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+      <span id="count-makanan" class="text-muted fw-600" style="font-size:.82rem"></span>
       <div class="sub-tab">
         <button class="active" onclick="filterMenu('makanan','all',this)">Semua</button>
         <button onclick="filterMenu('makanan','best',this)"><i class="bi bi-fire text-danger"></i> Best</button>
       </div>
     </div>
-    <div class="search-wrap mb-3 px-1">
-      <input type="text" id="search-makanan" placeholder="Cari makanan..." oninput="renderMenu('makanan')">
+    <div class="search-wrap mb-4">
       <i class="bi bi-search"></i>
+      <input type="text" id="search-makanan" placeholder="Cari makanan..." oninput="renderMenu('makanan')">
     </div>
-    <div class="row g-3 px-1" id="l-makanan">
+    <div class="row g-3" id="l-makanan">
       <div class="col-12"><div class="skeleton sk-card"></div></div>
       <div class="col-12"><div class="skeleton sk-card"></div></div>
     </div>
@@ -360,21 +430,23 @@
 
   <!-- MINUMAN PAGE -->
   <div id="p-minuman" class="page d-none">
-    <div class="hero mb-4" style="background-image:url('https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?q=80&w=1200&auto=format&fit=crop')">
-      <div class="hero-overlay"><h2 class="fw-bold m-0">Menu Minuman</h2></div>
+    <div class="hero mb-4" style="background-image:url('https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?q=80&w=1200')">
+      <div class="hero-overlay">
+        <h2 class="fw-800" style="font-size:2rem;font-family:'Pacifico',cursive">Menu Minuman</h2>
+      </div>
     </div>
-    <div class="d-flex align-items-center justify-content-between mb-3 px-1 flex-wrap gap-2">
-      <span id="count-minuman" class="text-muted" style="font-size:.82rem"></span>
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+      <span id="count-minuman" class="text-muted fw-600" style="font-size:.82rem"></span>
       <div class="sub-tab">
         <button class="active" onclick="filterMenu('minuman','all',this)">Semua</button>
         <button onclick="filterMenu('minuman','best',this)"><i class="bi bi-fire text-danger"></i> Best</button>
       </div>
     </div>
-    <div class="search-wrap mb-3 px-1">
-      <input type="text" id="search-minuman" placeholder="Cari minuman..." oninput="renderMenu('minuman')">
+    <div class="search-wrap mb-4">
       <i class="bi bi-search"></i>
+      <input type="text" id="search-minuman" placeholder="Cari minuman..." oninput="renderMenu('minuman')">
     </div>
-    <div class="row g-3 px-1" id="l-minuman">
+    <div class="row g-3" id="l-minuman">
       <div class="col-12"><div class="skeleton sk-card"></div></div>
       <div class="col-12"><div class="skeleton sk-card"></div></div>
     </div>
@@ -382,44 +454,48 @@
 
 </div>
 
-<!-- BOTTOM NAV MOBILE -->
+<!-- nav ngisor buat hp-->
 <nav class="bot-nav fixed-bottom d-flex justify-content-around py-2 shadow-lg d-md-none" style="z-index:1040">
   <div class="text-center nav-item-btn w-100 active" data-target="home" onclick="go('home')">
-    <i class="bi bi-house-door-fill fs-4 d-block"></i><span>Home</span>
+    <i class="bi bi-house-door-fill"></i><span>Home</span>
   </div>
   <div class="text-center nav-item-btn w-100" data-target="makanan" onclick="go('makanan')">
-    <i class="bi bi-egg-fried fs-4 d-block"></i><span>Makanan</span>
+    <i class="bi bi-egg-fried"></i><span>Makanan</span>
   </div>
   <div class="text-center nav-item-btn w-100" data-target="minuman" onclick="go('minuman')">
-    <i class="bi bi-cup-straw fs-4 d-block"></i><span>Minuman</span>
+    <i class="bi bi-cup-straw"></i><span>Minuman</span>
   </div>
 </nav>
 
-<!-- FAB CART MOBILE -->
-<button class="d-md-none btn text-white rounded-circle shadow-lg d-flex align-items-center justify-content-center b-main position-fixed"
+<!-- keranjang melayang iki -->
+<button class="d-md-none btn text-white rounded-circle shadow-lg d-flex align-items-center justify-content-center position-fixed b-main"
   id="fab-cart" data-bs-toggle="modal" data-bs-target="#cartModal"
-  style="width:60px;height:60px;bottom:82px;right:18px;z-index:1050;font-size:22px;border:none;">
+  style="background:var(--green-a);bottom:86px;right:18px">
   <i class="bi bi-cart3"></i>
-  <span id="c-mob" class="badge-count position-absolute badge rounded-pill bg-warning text-dark"
+  <span id="c-mob" class="position-absolute badge rounded-pill bg-warning text-dark"
     style="top:4px;right:4px;font-size:9px;min-width:18px;padding:2px 5px;">0</span>
 </button>
 
-<!-- MODAL KERANJANG -->
+<! cart ketoke>
 <div class="modal fade" id="cartModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content border-0 rounded-4">
-      <div class="modal-header border-0 pb-0">
-        <h5 class="modal-title fw-bold mb-0"><i class="bi bi-cart3 me-2 t-main"></i>Keranjang Pesanan</h5>
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+      <div class="modal-header border-0 pb-1 pt-4 px-4">
+        <div>
+          <h5 class="modal-title fw-800 mb-0">🛒 Keranjang Pesanan</h5>
+          <small class="text-muted fw-600">SMKN 5 Surakarta</small>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body p-4" id="c-items"></div>
-      <div class="modal-footer border-0 flex-column align-items-stretch d-none" id="c-footer">
-        <div class="d-flex justify-content-between fw-bold fs-5 mb-3 px-2">
-          <span>Total:</span><span class="t-main" id="c-total">Rp 0</span>
+      <div class="modal-body px-4 py-3" id="c-items"></div>
+      <div class="modal-footer border-0 flex-column align-items-stretch px-4 pb-4 d-none" id="c-footer">
+        <div class="d-flex justify-content-between fw-800 fs-5 mb-3 px-1">
+          <span>Total:</span>
+          <span style="color:var(--green-a)" id="c-total">Rp 0</span>
         </div>
-        <button class="btn btn-lg rounded-pill fw-bold text-white shadow-sm b-main" onclick="checkout()"
-          style="transition: transform .15s, box-shadow .15s;">
-          <i class="bi bi-bag-check me-2"></i>Pesan Sekarang
+        <button class="btn btn-lg rounded-pill fw-700 text-white shadow-sm py-3"
+          style="background:var(--green-a)" onclick="checkout()">
+          <i class="bi bi-bag-check-fill me-2"></i>Pesan Sekarang
         </button>
       </div>
     </div>
@@ -428,67 +504,57 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const JSONBIN_BIN_ID  = "69f9485836566621a82699c4";
-const JSONBIN_API_KEY = "$2a$10$yeNFeh35hEUuTVcEY4znkuLrYqTqLCZMpioDuaGPnZD0pGJJgAgLK";
-const BIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`;
-
 const $ = id => document.getElementById(id);
 const $$ = s => document.querySelectorAll(s);
 
-const team = [
-  { n:"Andika", r:"Lead Developer", img:"P3.jpg",  c:"primary" },
-  { n:"Faathir", r:"UI Designer",   img:"P2.jpg",  c:"success" },
-  { n:"Lingga", r:"Inovator",        img:"P1.png", c:"warning"  }
-];
+// Menu Ne
+const DEFAULT_MENU = {
+  makanan: [
+    { id: 1, nama: "Ayam Geprek", harga: 12000, desc: "Ayam goreng crispy disiram sambal geprek pedas", img: "mk1.jpg", kategori: "Lauk", best: true },
+    { id: 2, nama: "Nasi Goreng", harga: 10000, desc: "Nasi goreng bumbu spesial + telur + kecap", img: "mk2.jpg", kategori: "Nasi", best: true },
+    { id: 3, nama: "Mie Gacoan", harga: 11000, desc: "Mie pedas level 2, topping bakso + sawi", img: "mk3.jpg", kategori: "Mie", best: false },
+    { id: 4, nama: "Es Krim Joyday Blueberry", harga: 5000, desc: "Es krim lembut rasa blueberry segar", img: "mk4.jpg", kategori: "Dessert", best: false },
+    { id: 5, nama: "Es Krim Joyday Es Susu", harga: 5000, desc: "Es krim creamy rasa susu original", img: "mk5.jpg", kategori: "Dessert", best: false },
+    { id: 6, nama: "Mini Kebab", harga: 8000, desc: "Kebab isi daging sapi, sayur, saus mayo", img: "mk6.jpg", kategori: "Snack", best: false }
+    
+  ],
+  minuman: [
+    { id: 101, nama: "Es Teh", harga: 3000, desc: "Teh manis dingin segar, pilihan klasik", img: "mn1.jpg", kategori: "Dingin", best: false },
+    { id: 102, nama: "Air Mineral", harga: 2500, desc: "Air mineral kemasan botol 600ml", img: "mn2.jpg", kategori: "Botol", best: false }
+  ]
+};
 
-let menuData   = { makanan: [], minuman: [] };
-let cart       = [];
-let menuFilter = { makanan:"all", minuman:"all" };
-let lastMenuHash = "";
-const COLOR    = "#21a72a";
+// Emoji fallback 
+const EMOJI_MAP = {
+  "Lauk":"🍗","Nasi":"🍚","Mie":"🍜","Dessert":"🍦","Snack":"🌯",
+  "Dingin":"🧊","Botol":"💧","Umum":"🍽️"
+};
 
-/* ─── FETCH MENU (cache + smart refresh) ─── */
-async function loadMenu(silent = false) {
-  try {
-    const res = await fetch(BIN_URL, {
-      headers: { "X-Master-Key": JSONBIN_API_KEY },
-      cache: "no-store"
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    const data = json.record;
-    const newHash = JSON.stringify(data);
+const COLOR = "#21a72a";
+let menuFilter = { makanan: "all", minuman: "all" };
+let cart = [];
 
-    if (newHash === lastMenuHash && silent) return; // tidak ada perubahan, skip render
-    lastMenuHash = newHash;
-
-    menuData.makanan = Array.isArray(data.makanan) ? data.makanan : [];
-    menuData.minuman = Array.isArray(data.minuman) ? data.minuman : [];
-  } catch (e) {
-    console.error("Gagal fetch menu:", e);
-    if (!menuData.makanan.length) menuData = { makanan: [], minuman: [] };
-  }
-  renderMenu("makanan");
-  renderMenu("minuman");
-  renderBestPreview();
+// iki tutor seka yutub
+function getMenuData() {
+  const extra = JSON.parse(localStorage.getItem("kg_extra_menu") || '{"makanan":[],"minuman":[]}');
+  return {
+    makanan: [...DEFAULT_MENU.makanan, ...(extra.makanan || [])],
+    minuman: [...DEFAULT_MENU.minuman, ...(extra.minuman || [])]
+  };
 }
 
-/* ─── NAVIGASI ─── */
+let menuData = getMenuData();
+
+// Navigasi iki
 const go = id => {
   $$(".page").forEach(e => e.classList.add("d-none"));
-  const target = $(`p-${id}`);
-  target.classList.remove("d-none");
-  // Trigger re-animation
-  target.style.animation = "none";
-  target.offsetHeight; // reflow
-  target.style.animation = "";
-
-  $$(".nav-item-btn, .top-nav-link").forEach(e => e.classList.remove("active"));
+  $(`p-${id}`).classList.remove("d-none");
+  $$(".nav-item-btn,.nav-link-custom").forEach(e => e.classList.remove("active"));
   $$(`[data-target="${id}"]`).forEach(e => e.classList.add("active"));
   scrollTo({ top: 0, behavior: "smooth" });
 };
 
-/* ─── FILTER ─── */
+// manut tutor yutub
 const filterMenu = (type, mode, btn) => {
   menuFilter[type] = mode;
   $$(`#p-${type} .sub-tab button`).forEach(b => b.classList.remove("active"));
@@ -496,74 +562,89 @@ const filterMenu = (type, mode, btn) => {
   renderMenu(type);
 };
 
-/* ─── RENDER MENU ─── */
 const renderMenu = type => {
   const q = ($(`search-${type}`)?.value || "").toLowerCase();
   const items = (menuData[type] || []).filter(i =>
     (menuFilter[type] === "best" ? i.best : true) &&
-    (!q || i.nama.toLowerCase().includes(q) || (i.desc || "").toLowerCase().includes(q))
+    (!q || i.nama.toLowerCase().includes(q) || i.desc.toLowerCase().includes(q))
   );
 
   const countEl = $(`count-${type}`);
-  if (countEl) countEl.textContent = `${items.length} item tersedia`;
+  if (countEl) countEl.textContent = `${items.length} menu tersedia`;
 
-  const tpl = (i, idx) => `
-    <div class="col-12 col-md-6 col-lg-4 col-anim">
-      <div class="card menu-card shadow-sm h-100 border-start border-4" style="border-color:${COLOR}!important;animation-delay:${Math.min(idx*0.05, .3)}s">
+  const tpl = (i, idx) => {
+    const emoji = EMOJI_MAP[i.kategori] || "🍽️";
+    const imgSrc = i.img;
+    return `
+    <div class="col-12 col-md-6 col-lg-4 stagger-${Math.min(idx+1,6)}">
+      <div class="card menu-card shadow-sm h-100 position-relative">
+        ${i.best ? `<span class="ribbon">🔥 BEST</span>` : ''}
         <div class="card-body d-flex align-items-center gap-3 p-3">
-          <img src="${i.img || ''}" class="rounded-3 object-fit-cover shadow-sm flex-shrink-0" width="82" height="82"
-            loading="lazy" decoding="async"
-            onerror="this.style.background='#e8edf2';this.style.opacity='0.4';this.removeAttribute('src')">
+          <div style="position:relative;flex-shrink:0">
+            <img src="${imgSrc}" class="menu-card-img"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+              style="display:block">
+            <div style="width:88px;height:88px;border-radius:14px;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);display:none;align-items:center;justify-content:center;font-size:2.5rem;flex-shrink:0">
+              ${emoji}
+            </div>
+          </div>
           <div class="flex-grow-1 min-w-0">
             <div class="d-flex flex-wrap gap-1 mb-1">
-              ${i.best ? `<span class="badge bg-danger" style="font-size:.6rem"><i class="bi bi-fire"></i> Best</span>` : ''}
               <span class="badge bg-light text-secondary border" style="font-size:.6rem">${i.kategori || '-'}</span>
             </div>
-            <h6 class="mb-0 fw-bold" style="font-size:.88rem">${i.nama}</h6>
-            <small class="text-muted d-block mb-2 mt-1" style="font-size:.75rem">${i.desc || ''}</small>
+            <h6 class="mb-1 fw-800" style="font-size:.9rem">${i.nama}</h6>
+            <small class="text-muted d-block mb-2" style="font-size:.75rem;line-height:1.4">${i.desc}</small>
             <div class="d-flex justify-content-between align-items-center">
-              <span class="fw-bold" style="color:${COLOR};font-size:.85rem">Rp ${Number(i.harga).toLocaleString("id-ID")}</span>
-              <button class="btn btn-sm text-white rounded-pill px-3 btn-add-cart"
-                style="background:${COLOR};border:none;font-size:.8rem" onclick="addCart(${i.id})">
-                <i class="bi bi-plus-lg"></i>
+              <span class="fw-800" style="color:${COLOR};font-size:.9rem">Rp ${Number(i.harga).toLocaleString("id-ID")}</span>
+              <button class="add-btn" onclick="addCart(${i.id})">
+                <i class="bi bi-plus-lg" style="font-size:.9rem"></i>
               </button>
             </div>
           </div>
         </div>
       </div>
     </div>`;
+  };
 
   $(`l-${type}`).innerHTML = items.length
-    ? items.map((i, idx) => tpl(i, idx)).join('')
-    : `<div class="empty-menu col-12"><i class="bi bi-search"></i><p>Tidak ada menu ditemukan</p></div>`;
+    ? items.map(tpl).join('')
+    : `<div class="empty-menu col-12"><i class="bi bi-search"></i><p class="fw-700">Tidak ada menu ditemukan</p></div>`;
 };
 
-/* ─── BEST PREVIEW ─── */
+// Tampisan Best seler
 const renderBestPreview = () => {
   const all = [...(menuData.makanan || []), ...(menuData.minuman || [])].filter(i => i.best).slice(0, 4);
   if (!all.length) {
     $("best-preview").innerHTML = `<div class="col-12 text-center text-muted py-3" style="font-size:.85rem">Belum ada menu best seller</div>`;
     return;
   }
-  $("best-preview").innerHTML = all.map((i, idx) => `
-    <div class="col-12 col-md-6" style="animation: cardIn .35s ${idx * .07}s both">
-      <div class="card best-card border-0 shadow-sm rounded-3 d-flex flex-row align-items-center gap-3 p-3">
-        <img src="${i.img || ''}" class="rounded-3 object-fit-cover flex-shrink-0" width="60" height="60"
-          loading="lazy" decoding="async"
-          onerror="this.style.background='#e8edf2';this.style.opacity='0.4';this.removeAttribute('src')">
-        <div class="flex-grow-1 min-w-0">
-          <h6 class="mb-0 fw-bold text-truncate" style="font-size:.85rem">${i.nama}</h6>
-          <small class="text-muted" style="font-size:.72rem">${i.desc || ''}</small><br>
-          <span class="fw-bold t-main" style="font-size:.82rem">Rp ${Number(i.harga).toLocaleString("id-ID")}</span>
+  $("best-preview").innerHTML = all.map((i, idx) => {
+    const emoji = EMOJI_MAP[i.kategori] || "🍽️";
+    return `
+    <div class="col-12 col-md-6 stagger-${idx+1}">
+      <div class="best-card card shadow-sm d-flex flex-row align-items-center gap-3 p-3">
+        <div style="position:relative;flex-shrink:0">
+          <img src="${i.img}" class="rounded-3 object-fit-cover flex-shrink-0" width="60" height="60"
+            style="object-fit:cover;background:#e8f5e9"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div style="width:60px;height:60px;border-radius:10px;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);display:none;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0">
+            ${emoji}
+          </div>
         </div>
-        <button class="btn btn-sm text-white rounded-pill px-2 flex-shrink-0 b-main btn-add-cart" onclick="addCart(${i.id})">
-          <i class="bi bi-plus-lg"></i>
+        <div class="flex-grow-1 min-w-0">
+          <h6 class="mb-0 fw-800 text-truncate" style="font-size:.88rem">${i.nama}</h6>
+          <small class="text-muted" style="font-size:.72rem">${i.desc}</small><br>
+          <span class="fw-800" style="color:${COLOR};font-size:.85rem">Rp ${Number(i.harga).toLocaleString("id-ID")}</span>
+        </div>
+        <button class="add-btn flex-shrink-0" onclick="addCart(${i.id})">
+          <i class="bi bi-plus-lg" style="font-size:.9rem"></i>
         </button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 };
 
-/* ─── CART ─── */
+// Anu Iki Keranjang
 const allItems = () => [...(menuData.makanan || []), ...(menuData.minuman || [])];
 
 const addCart = id => {
@@ -572,14 +653,7 @@ const addCart = id => {
   const ext = cart.find(i => i.id === id);
   ext ? ext.qty++ : cart.push({ ...item, qty: 1, note: "" });
   updCart();
-
-  // Animasi FAB
-  const fab = $("fab-cart");
-  fab.classList.remove("fab-bounce");
-  fab.offsetWidth;
-  fab.classList.add("fab-bounce");
-
-  Swal.mixin({ toast: true, position: "top", showConfirmButton: false, timer: 1300 })
+  Swal.mixin({ toast: true, position: "top", showConfirmButton: false, timer: 1400 })
     .fire({ icon: "success", title: `${item.nama} ditambah 🎉` });
 };
 
@@ -594,65 +668,64 @@ const updNote = (id, val) => { const i = cart.find(x => x.id === id); if (i) i.n
 const updCart = () => {
   const totQty = cart.reduce((s, i) => s + i.qty, 0);
   const totPr  = cart.reduce((s, i) => s + i.harga * i.qty, 0);
-
-  // Badge pop animation
-  [$("c-desk"), $("c-mob")].forEach(el => {
-    if (!el) return;
-    el.textContent = totQty;
-    el.classList.remove("pop");
-    el.offsetWidth;
-    el.classList.add("pop");
-  });
-
-  $("c-total").textContent = `Rp ${totPr.toLocaleString("id-ID")}`;
+  $("c-desk").innerText = $("c-mob").innerText = totQty;
+  $("c-total").innerText = `Rp ${totPr.toLocaleString("id-ID")}`;
   $("fab-cart").classList.toggle("has-item", totQty > 0);
 
   if (!cart.length) {
     $("c-items").innerHTML = `
-      <div class="text-center text-muted py-4" style="animation:pageIn .3s ease">
-        <i class="bi bi-cart-x fs-1 d-block mb-2 opacity-25"></i>
-        <p>Keranjang kosong</p>
+      <div class="text-center text-muted py-5">
+        <div style="font-size:4rem;opacity:.15">🛒</div>
+        <p class="mt-2 fw-700">Keranjang masih kosong</p>
       </div>`;
     $("c-footer").classList.add("d-none");
   } else {
     $("c-footer").classList.remove("d-none");
-    $("c-items").innerHTML = cart.map((i, idx) => `
-      <div class="mb-3 pb-3 border-bottom cart-item-enter" style="animation-delay:${idx * .05}s">
+    $("c-items").innerHTML = cart.map(i => {
+      const emoji = EMOJI_MAP[i.kategori] || "🍽️";
+      return `
+      <div class="cart-item-row mb-2">
         <div class="d-flex align-items-center gap-3">
-          <img src="${i.img || ''}" class="rounded-3 object-fit-cover flex-shrink-0" width="48" height="48"
-            loading="lazy" onerror="this.style.background='#e8edf2';this.style.opacity='0.4';this.removeAttribute('src')">
-          <div class="flex-grow-1">
-            <h6 class="mb-0 fw-bold" style="font-size:.88rem">${i.nama}</h6>
-            <small class="text-success fw-bold">Rp ${Number(i.harga).toLocaleString("id-ID")}</small>
+          <div style="position:relative;flex-shrink:0">
+            <img src="${i.img||''}" class="rounded-3" width="50" height="50" style="object-fit:cover;background:#e8f5e9"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div style="width:50px;height:50px;border-radius:10px;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);display:none;align-items:center;justify-content:center;font-size:1.6rem">
+              ${emoji}
+            </div>
           </div>
-          <div class="d-flex align-items-center gap-1 flex-shrink-0">
-            <button class="btn btn-sm btn-outline-secondary rounded-circle"
-              style="width:28px;height:28px;padding:0;line-height:1.6" onclick="modQty(${i.id},-1)">-</button>
-            <span class="fw-bold px-1">${i.qty}</span>
-            <button class="btn btn-sm btn-outline-success rounded-circle"
-              style="width:28px;height:28px;padding:0;line-height:1.6" onclick="modQty(${i.id},1)">+</button>
+          <div class="flex-grow-1">
+            <h6 class="mb-0 fw-800" style="font-size:.88rem">${i.nama}</h6>
+            <small class="fw-700" style="color:${COLOR}">Rp ${Number(i.harga).toLocaleString("id-ID")}</small>
+          </div>
+          <div class="d-flex align-items-center gap-2 flex-shrink-0">
+            <div class="qty-btn" onclick="modQty(${i.id},-1)">−</div>
+            <span class="fw-800 px-1">${i.qty}</span>
+            <div class="qty-btn" onclick="modQty(${i.id},1)" style="border-color:var(--green);color:var(--green)">+</div>
           </div>
         </div>
         <input type="text" class="form-control form-control-sm mt-2 rounded-3"
-          placeholder="Catatan..." value="${i.note || ''}" oninput="updNote(${i.id},this.value)">
-      </div>`).join('');
+          placeholder="Catatan (opsional)..." value="${i.note}"
+          oninput="updNote(${i.id},this.value)"
+          style="font-size:.8rem;border:1.5px solid #e0e0e0;font-family:inherit">
+      </div>`;
+    }).join('');
   }
 };
 
-/* ─── CHECKOUT ─── */
+// Buat Checkout Kayak e
 const checkout = () => {
   bootstrap.Modal.getInstance($("cartModal")).hide();
-  Swal.fire({ title:"Memproses...", timer:900, didOpen:()=>Swal.showLoading(), showConfirmButton:false }).then(() => {
-    Swal.fire({
-      title: "Metode Pembayaran",
-      html: `<button class="btn btn-outline-primary w-100 mb-2 py-2 fw-bold" onclick="qris()">
-               <i class="bi bi-qr-code-scan me-2"></i>QRIS
-             </button>
-             <button class="btn btn-outline-success w-100 py-2 fw-bold" onclick="sukses('Tunai')">
-               <i class="bi bi-cash-coin me-2"></i>Tunai di Kasir
-             </button>`,
-      showConfirmButton: false, showCancelButton: true, cancelButtonText: "Batal"
-    });
+  Swal.fire({
+    title: "Metode Pembayaran",
+    html: `
+      <button class="btn btn-outline-primary w-100 mb-2 py-3 fw-700 rounded-pill" onclick="qris()">
+        <i class="bi bi-qr-code-scan me-2 fs-5"></i>Bayar via QRIS
+      </button>
+      <button class="btn btn-outline-success w-100 py-3 fw-700 rounded-pill" onclick="sukses('Tunai')">
+        <i class="bi bi-cash-coin me-2 fs-5"></i>Tunai di Kasir
+      </button>`,
+    showConfirmButton: false, showCancelButton: true, cancelButtonText: "Batal",
+    customClass: { popup: "rounded-4" }
   });
 };
 
@@ -662,49 +735,90 @@ const qris = () => {
     title: "Scan QRIS",
     html: `<p class="text-muted small">Scan via E-Wallet / M-Banking</p>
            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=KantinGo:Rp${pr}"
-             class="border rounded p-1 mb-3" width="200" loading="lazy">
-           <h5 class="fw-bold t-main">Rp ${pr.toLocaleString("id-ID")}</h5>`,
-    showCancelButton: true, confirmButtonText: "Sudah Bayar",
-    confirmButtonColor: "#21a72abb"
+             class="border rounded-3 p-1 mb-3" width="200">
+           <h5 class="fw-800" style="color:var(--green-a)">Rp ${pr.toLocaleString("id-ID")}</h5>`,
+    showCancelButton: true, confirmButtonText: "✅ Sudah Bayar",
+    confirmButtonColor: "#21a72a",
+    customClass: { popup: "rounded-4" }
   }).then(r => r.isConfirmed && sukses("QRIS"));
 };
 
 const sukses = m => {
-  Swal.fire({ title:"Verifikasi...", timer:1400, didOpen:()=>Swal.showLoading(), showConfirmButton:false }).then(() => {
+  Swal.fire({
+    title: "Memproses...", timer: 1500,
+    didOpen: () => Swal.showLoading(), showConfirmButton: false
+  }).then(() => {
     Swal.fire({
       icon: "success", title: "Berhasil! 🎉",
-      text: m === "QRIS" ? "Pembayaran berhasil!" : "Bayar di kasir ya!",
-      confirmButtonColor: "#21a72abb"
+      text: m === "QRIS" ? "Pembayaran QRIS berhasil!" : "Silakan bayar di kasir ya!",
+      confirmButtonColor: "#21a72a",
+      customClass: { popup: "rounded-4" }
     });
     cart = []; updCart();
   });
 };
 
-/* ─── STATUS KANTIN ─── */
+// dinggo Bukak Tutup 
 const cekKantin = () => {
-  const jam = new Date().getHours(), buka = jam >= 7 && jam < 17;
+  const jam = new Date().getHours();
+  const buka = jam >= 7 && jam < 17;
   const el = $("k-status");
-  el.textContent = buka ? "BUKA" : "TUTUP";
-  el.className = `badge rounded-pill mt-1 d-block shadow-sm ${buka ? 'bg-success' : 'bg-danger'}`;
+  el.innerText = buka ? "BUKA" : "TUTUP";
+  el.className = `status-badge ${buka ? 'bg-success text-white' : 'bg-danger text-white'}`;
 };
 
-/* ─── TEAM ─── */
-$("team-list").innerHTML = team.map((t, idx) => `
-  <div class="col" style="animation: cardIn .4s ${.1 + idx * .1}s both">
-    <img src="${t.img}" class="team-avatar rounded-circle border border-2 border-${t.c} mb-2 shadow-sm" width="70" height="70"
-      loading="lazy"
-      onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(t.n)}&background=21a72a&color=fff&size=70'">
-    <h6 class="fw-bold mb-0">${t.n}</h6>
-    <small class="text-muted">${t.r}</small>
+// Dinggo Tim Pengembang
+const team = [
+  { n: "Andika", r: "Lead Developer", img: "P3.jpg", color: "#4a90e2" },
+  { n: "Faathir", r: "UI Designer",   img: "P2.jpg", color: "#21a72a" },
+  { n: "Lingga", r: "Inovator",       img: "P1.png", color: "#f59e0b" }
+];
+
+$("team-list").innerHTML = team.map((t, i) => `
+  <div class="col-4 stagger-${i+1}">
+    <div class="team-card section-card p-3 text-center">
+      <img src="${t.img}" class="team-avatar mb-2" width="70" height="70"
+        style="border-color:${t.color}!important"
+        onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(t.n)}&background=${t.color.replace('#','')}&color=fff&size=70'">
+      <h6 class="fw-800 mb-0" style="font-size:.85rem">${t.n}</h6>
+      <small class="text-muted" style="font-size:.72rem">${t.r}</small>
+    </div>
   </div>`).join('');
 
-/* ─── INIT ─── */
+// Bola Bola Partikel
+function createParticles() {
+  const bg = $("particles-bg");
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    const size = Math.random() * 16 + 6;
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random() * 100}%;
+      animation-duration:${Math.random() * 12 + 10}s;
+      animation-delay:${Math.random() * 10}s;
+    `;
+    bg.appendChild(p);
+  }
+}
+
+// gtw apa ini dari tutor yutub
+function loadMenu() {
+  menuData = getMenuData();
+  renderMenu("makanan");
+  renderMenu("minuman");
+  renderBestPreview();
+}
+
+// untuk update 
+window.addEventListener("storage", e => {
+  if (e.key === "kg_extra_menu") loadMenu();
+});
+
+createParticles();
 cekKantin();
 setInterval(cekKantin, 60000);
 loadMenu();
-
-// Auto-refresh setiap 30 detik (silent = hanya render jika data berubah)
-setInterval(() => loadMenu(true), 30000);
 </script>
 </body>
 </html>
